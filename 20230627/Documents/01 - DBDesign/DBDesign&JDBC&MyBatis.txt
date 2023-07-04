@@ -1,0 +1,1585 @@
+DBDesign & JDBC & MyBatis
+    1. DBDesign
+    2. JDBC
+    3. MyBatis
+
+1. DBDesign
+    0. DBDesign需要掌握he了解：
+        理论：
+            设计过程
+            设计原则
+        工具：
+    1. 设计过程
+        逻辑设计：
+            识别实体、识别实体属性、识别实体间关系
+        物理设计：
+            建库、建表、建约束
+            **约束：
+                实体|域完整性：check、default、between、唯一、not null
+                参照完整性：pk、fk、表级触发器
+                用户自定义完整性：存储过程、触发器
+    2. 设计原则：数据库的范式 NF
+        0. 范式：http://baike.baidu.com/view/402020.htm
+        设计关系数据库时，遵从不同的规范要求，设计出合理的关系型数据库，这些不同的规范要求被称为不同的范式。
+        各种范式呈递次规范，越高的范式数据库冗余越小。
+        目前关系数据库有六种范式：
+            第一范式（1NF）、第二范式（2NF）、第三范式（3NF）、巴斯-科德范式（BCNF）、第四范式(4NF）和第五范式（5NF，还又称完美范式）。
+        
+        1. 一般说来，数据库设计只需满足第三范式(3NF）
+            理论&通俗
+            1NF：
+                保证原子性，所有字段值都是不可分解的原子值。
+                不可再分、要有主键。
+                    通过添加字段实现。
+                * 主键的分类： 
+                    单一主键(自然主键-业务主键、代理主键-无意义的整数值)
+                    复合主键
+                结论：
+                    使用代理主键、命名为id
+                代理主键绝不仅仅是int&auto increment
+                代理主键的类型：一般使用第1种，但真的不是只有第一种。
+                实现代理键有几个常用的选择：
+                1. 使用数据库赋值。
+                大多数主要的数据库供应商--例如Oracle、Sybase以及Informix、MySQL、MSSQLServer--实现了被称为递增键的代理键策略。
+                基本理念是在数据库服务器中维护一个计数器，将当前值写入一个隐藏的系统表来维护一致性，并用于赋值一个新建的数据行。
+                每创建一行，计数器递增并将值作为该行的键值。
+                不同供应商的实现策略不同，有时候值在所有表之间都是唯一的，有时候只在单个表内部是唯一的，但是基本概念相同。
+                2. MAX() + 1。一个常用的策略是使用整数列，第一条记录从1开始，然后新行的值设置为该列的最大值加1，最大值用SQL函数MAX获得。
+                虽然这个方法简单，但是对于大表存在性能问题，而且它只能确保表内部的唯一键值。
+                3. 全局唯一标识符（UUIDs）,http://baike.baidu.com/view/1052579.htm。
+                GUIDs是128位值，来自以太网卡ID或等价的软件表示以及系统当前时间的哈希值。
+                该算法是由开放软件基金会(Open Software Foundation, OSF)定义的。
+                4. 全球唯一标识（GUIDs）。
+                GUIDs是微软扩展UUIDs后的标准，遵从相同的策略，如果存在以太网卡使用网卡ID，
+                如果不存在，使用软件ID与当前时间计算一个哈希值，确保在机器内部唯一。
+                5. 高低位策略。
+                它的基本思想是key-value实现，通常称为持久化对象标识符（POID）或者简称对象标识符（OID）。
+                分为两个逻辑部分：从指定来源获取的唯一HIGH值和应用自身分配的N为LOW值。每获取一个HIGH值，LOW值设置为0。
+                例如，应用请求一个HIGH值并被赋予1701。假设LOW值的位数N为4，那么赋予对象的POID将会由17010000、17010001、17010002等等
+                直到17019999组成。此时，再获取一个新的HIGH值，LOW值设置为0，再次重复。
+                如果另一个应用在之后立即请求了一个HIGH值，它将获得1702，而它创建的对象被赋予OIDs将会是17020000、17020001等等。
+                只要HIGH值唯一，所有的POID值将会唯一。
+                ** MySQL对UUID的支持：UUID()函数产生的值，并不适合作为InnoDB引擎表的主键。
+                    MySQL中可以有二类用于生成唯一值性质的工具：UUID()函数和自增序列。
+                        + 都可以实现生成唯一值的功能；
+                        + UUID是可以生成时间、空间上都独一无二的值；
+                          自增序列只能生成基于表内的唯一值，且需要搭配使其为唯一的主键或唯一索引；
+                        + 实现方式不一样，UUID是随机+规则组合而成的，而自增序列是控制一个值逐步增长的；
+                        + UUID产生的是字符串类型值，固定长度为：36个字符，
+                          自增序列产生的是整数类型值，长度由字段定义属性决定；
+                    MySQL 可以用uuid()语句来生成一个UUID：
+                        select uuid();
+                        或 select replace(uuid(), '-', '');
+                        直接在insert语句中插入UUID作主键的用法(简便)：
+                            insert into Price(id, Name) values(uuid(), 'zhangsan');
+                        replace(uuid(),'-','')   ---->将uuid()中的‘-’，去掉，即替换成空串；
+                        upper(replace(uuid(),'-',''))用于将字符转换为大写
+            2NF：
+                消除非主键属性对主键的部分(函数)依赖
+                主键要唯一
+                    通过拆表、加表实现
+            3NF：
+                消除传递依赖
+                表中，只存在三种类型的字段：
+                    主键字段：id、代理主键、整型自增序列；
+                    实体属性字段：描述该表所代表的实体的属性的字段，和主键直接相关；
+                    表示关系的字段：一般表示为外键字段，描述和该表所对应实体关联的实体间的关系
+                通过拆表、加表实现
+        2. 数据库中表的类型：
+            实体表、关系表。
+        3. 数据库中关系，三种关系
+            0. 关系的本质：
+                唯一字段和唯一字段|非唯一字段之间的对应
+            1. 一对一
+                两种实现方式：
+                    唯一性字段做外键
+                    主键做做外键
+            2. 一对多|多对一
+                主外键约束
+            3. 多对多
+                加入新的关系表实现。
+                两种实现方式：
+                    关系表，两种：
+                        单纯关系表：作者、图书、作者and图书
+                        含有数据意义的关系表：产品、订单、订单详情
+    3. 案例：
+        书店-参考实现 - 最简版
+        Books(id, name, isbn, price, discount)
+        Employees(id, name)
+        Customers(id, name, gender)
+        Addresses(id, address, tel, customerId)
+        Orders(id, orderNum, discount, fixedPrice, totalPrice, customerId)
+        OrderDetailses(id, orderId, bookId, price, num, subPrice)
+        
+    4. 工具：
+        PowerDesigner
+            CDM&PDM
+    5. 讨论：
+        不一定严格遵循NF
+            price、subPrice、totalPrice
+        是不是需要触发器
+        存储过程的作用
+        关系的创建--db？code？
+    6.设计规范：命名规范
+        自行约定，兼顾习惯
+        数据库对象命名的规则
+            表、字段、主键、外键、触发器、存储过程
+        参考：
+            http://www.cnblogs.com/JimmyZhang/archive/2007/08/30/875504.html
+            http://www.cnblogs.com/smileyearn/articles/1779493.html
+        我们的约定：
+            表：名词，复数，首字符大大写，多个名词间使用and连接
+            字段：
+                id、name、其他满足camel命名规范
+                外键字段，前缀为对应实体的名字
+            主键：
+                主键字段名：id
+                主键约束名：pk_所在表名
+            外键：
+                外键字段：前缀为对应实体的名字，后接Id，如果：bookId
+                外键约束名：
+                    fk_外键所在的表名_外键引用的表名。
+                    因为外键所在的表为从表，所以可以写为 fk_从表名_主表名。
+    7. bookshop设计
+        DB：bookshop
+        Tables：
+            Books(id, name, isbn, price, cover, sellnum, discount, pressId)
+            Categories(id, name, parentId)
+            BookAndCategory(id, bookId, categoryId)
+            Authors(id, name)
+            BookAndAuthor(id, isbn, authorId)
+            Presses(id, name, address)
+            Customers(id, name, pwd)
+            CustomerDetailses(id, name, pwd, gender, birthday, age, salary, tel, email, habits)
+            Addresses(id, address, zipecode, customerId)
+            Orderes(id, orderNum, totalPrice, orderstate, orderDate, customerId)
+            OrderDetailses(id, orderId, bookId, price, num, subPrice)
+        实体表、关系表 
+        
+2. JDBC
+    0. 概述
+        JDBC(Java DataBase Connection),Java数据库连接，独立于数据库连接的标准的Java API。
+        JDBC库包含的API为每个与数据库的使用相关联的任务：
+            连接到具体的数据库
+            创建SQL语句
+            执行SQL语句操作(CRUD：CUD+R)数据库
+            查看和修改数据库中的数据
+        从根本上说，JDBC是一种规范，它提供完整的，便捷访问底层数据库接口。
+            ！！Java的JDBC只提供接口规范，具体的厂商的DBDriver(jar包)提供具体的实现。！！
+        JDBC架构：
+            JDBC API支持两层和三层处理模型进行数据库访问，但一般的JDBC体系结构由两层组成：
+                JDBC API: 提供了应用程序对JDBC的管理连接的接口的定义。
+                JDBC Driver API: 支持JDBC管理到具体数据库连接的实现。
+                -- 参见图。
+        常见的JDBC组件：
+            JDBC API提供了以下接口和类：
+                DriverManager: 
+                    管理数据库驱动程序的列表，用来创建和数据库的连接。
+                Driver: 
+                    此接口处理与数据库服务器通信。很少直接与驱动程序对象。
+                Connection : 
+                    此接口表示和数据库的连接对象。
+                    即，与数据库中的所有的通信是通过此唯一的连接对象。
+                Statement : 
+                    可以使用这个接口创建的SQL语句提交到数据库。
+                    一些派生的接口接受除执行存储过程的参数。
+                    运行时使用静态SQL语句。 Statement接口一般不能接受的参数。
+                PreparedStatement：
+                    多次使用SQL语句使用预编译的SQL语句接口。 
+                    接收在运行时输入参数。
+                CallableStatement：
+                    执行存储过程的接口，访问数据库中的存储过程时使用。
+                    可以接受运行时输入参数。
+                ResultSet: 
+                    对使用Statement对象的SQL查询结果中检索数据。
+                    它作为一个迭代器，让您可以通过移动它的数据。
+                SQLException: 
+                    处理发生在一个数据库应用程序的异常。
+        JDBC 4.0
+            JDBC4.0主要包含java.sql和javax.sql包，提供与数据源进行交互的主要类。
+            在这些包中的新功能包括改变在以下几个方面：
+                自动数据库驱动程序加载
+                异常处理的改进
+                增强的BLOB/ CLOB功能
+                Connection和Statement接口的增强
+                Unicode字符集支持
+                SQL ROWID访问
+                SQL 2003 XML数据类型支持
+                注释
+                
+    1. SQL语法检视
+        SQL（结构化查询语言）是一种标准化的语言，允许在数据库上执行操作，如创建项目，读取内容，内容更新和删除条目。
+        几乎支持任何数据库，独立于底层数据库的数据操作语言。
+        SQL能够创建-Create，检索-Retrieval，更新-Update和删除-Delete（CRUD）数据库中的数据。
+        创建数据库：
+            CREATE DATABASE语句用于创建一个新的数据库。语法是：
+            SQL> CREATE DATABASE DATABASE_NAME;
+            例子：
+            下面的SQL语句创建一个名为EMP数据库：
+            SQL> CREATE DATABASE EMP;
+        删除数据库：
+            使用DROP DATABASE语句用于删除现有的数据库。语法是：
+            SQL> DROP DATABASE DATABASE_NAME;
+            注意：要创建或删除，应该有数据库服务器上管理员权限的数据库。
+            删除数据库将所有损失存储在数据库中的数据。
+        创建表：**数据库中的类型  char、varchar、nchar、nvarchar
+        CREATE TABLE语句用于创建一个新表。语法是：
+            SQL> CREATE TABLE table_name
+            (
+               column_name column_data_type,
+               column_name column_data_type,
+               column_name column_data_type
+               ...
+            );
+            例子：
+            下面的SQL语句创建一个有四个栏位名为Employees表：
+            SQL> CREATE TABLE Employees
+            (
+               id INT NOT NULL,
+               age INT NOT NULL,
+               first VARCHAR(255),
+               last VARCHAR(255),
+               PRIMARY KEY ( id )
+            );
+        删除表：
+            DROP TABLE语句用于删除现有的表。语法是：
+            SQL> DROP TABLE table_name;
+        查询表中数据：
+            SELECT语句用于查询表中的数据。语法是：
+            SQL> SELECT column_name, column_name, ...
+                 FROM table_name
+                 WHERE conditions;
+            WHERE子句可以使用比较操作符例如=, !=, <, >, <=, >=,以及BETWEEN和LIKE操作符。
+            例子：
+            下面的SQL语句从Employees表选择age、first和last列名条件是where id =100：
+            SQL> SELECT first, last, age 
+                 FROM Employees 
+                 WHERE id = 100;
+            下面的SQL语句从Employees表，其中first\last\age，first包含 Zara:
+            SQL> SELECT first, last, age 
+                 FROM Employees 
+                 WHERE first LIKE '%Zara%';
+        UPDATE 数据:
+            UPDATE语句用于更新数据。UPDATE语法为：
+            SQL> UPDATE table_name
+                 SET column_name = value, column_name = value, ...
+                 WHERE conditions;
+        WHERE子句可以使用比较操作符例如=，！=，<，>，<=，和>=，以及BETWEEN和LIKE操作符。
+        DELETE 数据：
+            DELETE语句用于删除表中的数据。语法是：
+            SQL> DELETE FROM table_name 
+                 WHERE conditions;
+            例子：
+            下面的SQL的DELETE语句删除其ID为100的员工记录：
+            SQL> DELETE FROM Employees WHERE id=100;
+
+    2. 基本JDBC
+        创建JDBC应用程序：
+            构建JDBC应用程序的八个步骤：
+                1 - 添加数据库驱动程序：大多数数据库厂商随数据库的安装提供相应的JDBC驱动程序。
+                2 - 导入数据包：需要包括含有需要进行数据库编程的JDBC类的包。
+                    import java.sql.*
+                3 - 注册JDBC驱动程序：需要初始化驱动程序，可以与数据库打开一个通信通道。
+                4 - 获取数据库连接：需要使用DriverManager.getConnection() 方法创建一个Connection对象，它代表与数据库的物理连接。
+                    数据库URL、usn、pwd
+                5 - 获取JDBC中的语句对象(现在多使用PreparedStatement)，并放入SQL语句。
+                    视需要，设置参数
+                6 - 提交SQL语句到数据库，分为两类：
+                    执行增、删、改，需要事务的开启和关闭。
+                    执行查询。
+                7 - 处理结果：
+                    增、删、改：获取返回的整型数值，判断操作结果；
+                    查询：从结果集-ResultSet中提取数据，使用适当的ResultSet.getXXX()方法来检索结果集的数据。
+                8 - 清理环境：明确地关闭所有的数据库资源。
+        关键步骤&语句：
+            1. copy mysql-connector-java-5.X.XX-bin.jar
+            2. 导入需要的包
+                import java.sql.*
+            3. 注册驱动程序
+                Class.forName("com.mysql.jdbc.Driver");
+            4. 获取连接
+                String url = 
+                    "jdbc:mysql://127.0.0.1:3306/mydb?useUnicode=true&characterEncoding=UTF-8"
+                String usn = "root";
+                String pwd = "root";
+                Connection conn = DriverManager.getConnection(url, usn, pwd);
+                JDBC URL 定义驱动程序与数据源之间的连接
+                标准语法：
+                    <protocol（主要通讯协议）>:<subprotocol（次要通讯协议，即驱动程序名称）>:<data source identifier（数据源）>
+                MySQL的JDBC URL格式：
+                    jdbc:mysql//[hostname][:port]/[dbname][?param1=value1][&param2=value2]….
+                    常见参数：
+                        user                       用户名
+                        password                  密码
+                        autoReconnect                  联机失败，是否重新联机（true/false）
+                        maxReconnect              尝试重新联机次数
+                        initialTimeout               尝试重新联机间隔
+                        maxRows                   传回最大行数
+                        useUnicode                 是否使用Unicode字体编码（true/false）
+                        characterEncoding          何种编码（GB2312/UTF-8/GBK…）
+                        relaxAutocommit            是否自动提交（true/false）
+                        capitalizeTypeNames        数据定义的名称以大写表示
+                MySQL中文乱码解决：http://www.zihou.me/html/2010/06/07/2245.html
+            5. 获取PreparedStatement，并放入SQL语句。
+                String sql = "......";
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                pstmt.setXxx(1, xxx);
+                ...
+                关于ResultSet：
+                    执行查询的sql语句后，会返回ResultSet。
+                    ResultSet接口的方法分为三类：
+                        导航：用于移动光标.
+                        获取：用于查看当前行的光标所指向的列中的数据。
+                        更新：用于更新当前行的列中的数据可以同步到数据库。
+                    上述操作的属性，需要在创建生成ResultSet的语句时指定。
+                    如：
+                        prepareStatement(String SQL, int RSType, int RSConcurrency);
+                    ResultSet的类型：
+                        RSType指定导航方向，默认TYPE_FORWARD_ONLY。
+                        ResultSet.TYPE_FORWARD_ONLY
+                            游标只能向前移动的结果集。
+                        ResultSet.TYPE_SCROLL_INSENSITIVE
+                            游标可以向前和向后滚动，对数据（库）修改不敏感。
+                        ResultSet.TYPE_SCROLL_SENSITIVE
+                            游标可以向前和向后滚动，对数据（库）修改敏感。
+                    并发性的ResultSet：
+                        RSConcurrency执行是否可以通过结果集修改数据库，默认CONCUR_READ_ONLY。
+                        ResultSet.CONCUR_READ_ONLY
+                            创建的结果集是只读，默认。
+                        ResultSet.CONCUR_UPDATABLE
+                            创建一个可更新的结果集。
+            6. 执行SQL语句操作
+                DDL&CUD：
+                    int result = pstmt.executeUpdate();
+                    返回受影响的SQL CUD语句执行的行数，针对INSERT，UPDATE或DELETE语句。
+                    boolean result = pstmt.execute();
+                    执行SQL DDL语句
+                R-SQL：
+                    ResultSet rs = pstmt.executeQuery();
+                    返回SELECT语句的查询结果
+                JDBC中的事务：
+                    1 - 获取数据库当前事务状态
+                        boolean flag = conn.getAutoCommit();
+                    2 - 开启事务，设置数据库事务为JDBC控制
+                        conn.setAutoCommit(false);
+                    3 - 设置检查点-Savepoint，有名字或者无名字
+                        Savepoint savepoint = conn.setSavepoint();
+                        或者：
+                        Savepoint savepoint = conn.setSavepoint(String);
+                    4 - 提交事务 - SQL语句执行没有错误时
+                        conn.commit();
+                    5 - 回滚-Rollback - SQL语句执行出错误时，一般放在异常处理中。
+                        catch (SQLException e) {
+                                    e.printStackTrace();
+                                        if (savepoint == null) {
+                                            con.rollback();
+                                        } else {
+                                            con.rollback(savepoint);
+                                            con.commit();
+                                        }
+                                }
+                    6 - 恢复数据库的原先的事务状态
+                        conn.setAutoCommit(flag);
+                事务：
+                    逻辑上的一组操作，组成这组操作的各个语句，要不全部成功，要不全部不成功。
+                        例如：A——B转帐，对应的多条SQL语句：数据库的更新和日志的插入。
+                    数据库默认事务是自动提交的，需要JDBC处理事务。
+                事务的特性(ACID)：
+                    （1）原子性（Atomicity）
+                        原子性是指事务是一个不可分割的工作单位，
+                        事务中的操作要么都发生，要么都不发生。 
+                    （2）一致性（Consistency）
+                        事务前后数据的完整性必须保持一致。
+                    （3）隔离性（Isolation）
+                        事务的隔离性是指多个用户并发访问数据库时，
+                        一个用户的事务不能被其它用户的事务所干扰，多个并发事务之间数据要相互隔离。
+                    （4）持久性（Durability）
+                        持久性是指一个事务一旦被提交，它对数据库中数据的改变就是永久性的，
+                        接下来即使数据库发生故障也不应该对其有任何影响
+                事务的隔离级别
+                    （1）多个线程开启各自事务操作数据库中数据时，数据库系统要负责隔离操作，
+                        以保证各个线程在获取数据时的准确性。
+                    （2）如果不考虑隔离性，可能会引发如下问题：
+                        脏读（dirty reads） 
+                            一个事务读取了另一个未提交的并行事务写的数据。 
+                        不可重复读（non-repeatable reads） 
+                            在一个事务内读取表中的某一行数据，多次读取结果不同。
+                            一个事务重新读取前面读取过的数据， 
+                            发现该数据已经被另一个已提交的事务修改过。 
+                            和脏读的区别是：
+                                脏读是读取前一事务未提交的脏数据，
+                                不可重复读是重新读取了前一事务已提交的数据。
+                        幻读|虚读（phantom read） 
+                            指在一个事务内读取到了别的事务插入的数据，导致前后读取不一致。
+                            一个事务重新执行一个查询，返回一套符合查询条件的行，
+                            发现这些行因为其他最近提交的事务而发生了改变。
+                事务隔离性级别：
+                    数据库共定义了四种隔离级别：
+                        Serializable：可避免脏读、不可重复读、虚读情况的发生。（串行化）
+                        Repeatable read：可避免脏读、不可重复读（可重复读）。不可避免幻读。
+                        Read committed：可避免脏读情况发生（读已提交）
+                        Read uncommitted：最低级别，以上情况均无法保证。(读未提交)
+                    安全性来说：
+                        Serializable>Repeatable read>Read committed>Read uncommitted
+                    效率来说：
+                        Serializable<Repeatable read<Read committed<Read uncommitted
+                    MySQL默认的数据库隔离级别为：REPEATABLE-READ
+                        查询当前数据库的隔离级别
+                            select @@tx_isolation;
+                        设置当前数据库的隔离级别
+                            set [global/session] transaction isolation level ...;
+                        设置的隔离级别只对当前连接起作用。
+                            set transaction isolation level read uncommitted;
+                            set session transaction isolation level read uncommitted;
+                        设置的隔离级别是设置数据库默认的隔离级别
+                            set global transaction isolation level read uncommitted;
+                    JDBC设置事务隔离级别：
+                        // 获取当前连接的数据库的事务隔离级别
+                        int level = conn.getTransactionIsolation(); 
+                        // 无事务隔离：
+                        conn.setTransactionIsolation(Connection.TRANSACTION_NONE);
+                        //最底级别：只保证不会读到非法数据，上述3个问题有可能发生
+                        conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+                        //默认级别：可以防止脏读
+                        conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
+                        //可以防止脏读和不可重复读取
+                        conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+                        //最高级别：防止上述3种情况，事务串行执行，慎用
+                        conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); 
+                    事务的丢失更新问题(lost update )
+                        （1）两个或多个事务更新同一行，
+                            但这些事务彼此之间都不知道其它事务进行的修改，
+                            因此第二个更改覆盖了第一个修改 
+                        （2）共享锁：共享锁和共享锁可以共存。
+                            共享锁和排他锁不能共存。
+                            在Serializable隔离级别下一个事务进行查询操作将会加上共享锁。
+                        （3）排他锁：排他锁和所有锁都不能共存。
+                            无论什么隔离级别执行增删改操作时，会加上排他锁
+                        （4）数据库设计为Serializable隔离级别，就可以防止更新丢失问题。
+                        乐观锁和悲观锁并不是数据库中真实存在的锁，
+                            是利用共享和排他锁解决更新丢失问题的两种解决方案，
+                            体现看待事务的态度：
+                        悲观锁：悲观的认为大部分情况下进行操作都会出现更新丢失问题。
+                            在每次进行查询的时候，都手动的加上一个排他锁。
+                            select * from table lock in share mode（读锁、共享锁）
+                            select * from table for update （写锁、排它锁）
+                        乐观锁：乐观的认为大部分的情况下都不会有更新丢失问题。
+                            通过时间戳字段，在表中设计一个版本字段version，
+                            当每次对数据库中的数据进行修改操作时，版本号都要进行增加。
+                        （5）两种锁的取舍
+                            如果修改比较少查询比较多：乐观锁
+                            如果查询比较少修改比较多：悲观锁
+                        参考：http://chenzhou123520.iteye.com/blog/1860954
+            7. 处理SQL语句的结果
+                CUD&DDL
+                    返回值为int和boolean
+                        返回受影响的SQL CUD语句执行的行数，针对INSERT，UPDATE或DELETE语句。
+                        返回DDL语句的执行结果
+                SELECT语句的结果是结果集-ResultSet
+                    while(rs.next()){
+                        rs.getXxx(int | String)
+                    }
+                关于ResultSet：
+                    1 - 导航结果集
+                        S.N.    方法 & 描述
+                        1       public void beforeFirst() throws SQLException 
+                                将光标移动到正好位于第一行之前
+                        2       public void afterLast() throws SQLException 
+                                将光标移动到刚刚结束的最后一行
+                        3       public boolean first() throws SQLException 
+                                将光标移动到第一行
+                        4       public void last() throws SQLException 
+                                将光标移动到最后一行。
+                        5       public boolean absolute(int row) throws SQLException 
+                                将光标移动到指定的行
+                        6       public boolean relative(int row) throws SQLException 
+                                从它目前所指向向前或向后移动光标行的给定数量。
+                        7       public boolean previous() throws SQLException 
+                                将光标移动到上一行。上一行关闭的结果集此方法返回false
+                        8       public boolean next() throws SQLException 
+                                将光标移动到下一行。如果没有更多的行结果集中的此方法返回false
+                        9       public int getRow() throws SQLException 
+                                返回的行号，该光标指向的行.
+                        10      public void moveToInsertRow() throws SQLException 
+                                将光标移动到一个特殊的行，可以用来插入新行插入到数据库中的结果集。
+                                当前光标位置被记住.
+                        11      public void moveToCurrentRow() throws SQLException 
+                                移动光标返回到当前行，如果光标在当前插入行，
+                                否则，这个方法不执行任何操作
+                    2 - 查看结果集：
+                        getXxx方法有两个版本:
+                            需要一个列名。
+                            需要列中索引。
+                    3 - 查看结果的元数据
+                        ResultSetMetaData md = rs.getMetaData();
+                            md.getColumnCount()
+                            md.getColumnName(int)
+                            md.getColumnTypeName(int)
+                    4 - 更新的结果集：
+                        updateXxx有两种更新方法：
+                            需要一个列名。
+                            需要列中索引。
+                    5 - 更新数据库
+                    更新更改数据库中的一行，涉及到下面的方法之一。
+                        S.N.    方法 & 描述
+                        1       public void updateRow()
+                                更新数据库中当前行。
+                        2       public void deleteRow()
+                                从数据库中删除当前行
+                        3       public void refreshRow()
+                                刷新在结果集的数据，以将最新变化同步在数据库中。
+                        4       public void cancelRowUpdates()
+                                取消所做的当前行的任何更新。
+                        5       public void insertRow()
+                                向光标指向位置插入一行到数据库中。
+    3. 基于框架&ORMapping的JDBC实现
+        讨论MVC分层：
+            Dao中应该放什么，应该返回什么
+        问题：
+            如何在class中体现关系
+            1:1 类中有类
+            1:n，注意构造方法
+                1：加新的属性，Set<n方的类> = new HashSet<>)();
+                n：删除外键属性，改为对应的1方的类的属性
+            m:n 
+                双方均添加Set<T>，纯粹的关系表不体现
+        实体类： == BookAndAuthor、BookAndCategory
+            所有表对应的实体的关系： 9个实体类，8个关系
+                Book(m) - (n)Category
+                Book(m) - (n)Author
+                Book(n) - (1)Press
+                Book(1) - (n)OrderDetails
+                Order(1) - (n)OrderDetails
+                Order(n) - (1)Customer
+                Customer(1) - (n)Address
+                Customer(1) - (1)CustomerDetails == extends
+            com.bookshop.domain.po 
+            implements Serializable
+            1 - Address(id, address, zipe, /*customerId*/ customer)
+            2 - Author(id, name
+            , Set<Book> books = new HashSet<Book>();)
+            3 - Book(id, name, isbn, price, cover, sellnum, discount, /*pressId*/press
+                    , Set<Author> authors = new HashSet<Author>();
+                    , categories = new HashSet<Category>();
+                    , Set<OrderDetails> orderDetailses = new HashSet<OrderDetails>();)
+            4 - Category(id, name, /*parentId*/ parent
+                    , Set<Book> books = new HashSet<Book>();)
+            5 - Customer(id, name, pwd
+                    , Set<Order> orders = new HashSet<Order>();
+                    , Set<Address> addresses = new HashSet<Address>();)
+            6 - CustomerDetails extends Customer
+                (gender, birthday, age, salary, tel, email, habits;)
+            7 - Order(id, orderNum, totalPrice, orderDate, orderState, /*customerId*/customer
+                    , Set<OrderDetails> orderDetailses = new HashSet<OrderDetails>();)
+            8 - OrderDetails(id, /*bookId*/book, /*orderId*/order, price, num, subPrice)
+            9 - Press(id, name, address;
+                    , Set<Book> books = new HashSet<Book>();)
+        实现步骤：
+            1 - 规划Dao的接口和方法
+            2 - 实现DBConfig
+            3 - 实现BaseDao
+            4 - 完成所有的实现类
+        0. package architecture
+            com.bookshop.domain.po
+                所有的实体类，计有：见上。
+            com.bookshop.dao
+                所有的DAO接口，对应9个实体类，有9个Dao接口
+                所有接口共有的方法：命名方式，Dao层遵循SQL语句的命名
+                    Entity findById(Integer id);
+                    List<Entity> findALl();
+                    int insert(Entity entity);
+                    int update(Entity entity);
+                    int delete(Entity entity);
+                    int delete(Integer id);
+                    实现方式：
+                        public interface GenericDao
+                                <Entity extends Serializable, ID extends Object> {
+                            Entity findById(ID id);
+                            List<Entity> findAll();
+                            List<Entity> findBySQL(final String sql, final Object... params);
+                            int insert(Entity entity);
+                            int update(Entity entity);
+                            int delete(Entity entity);
+                            int delete(ID id);
+                        }
+                各个接口特有方法：
+                    1 - AddressDao
+                        public interface AddressDao 
+                                extends GenericDao<Address, Integer> {
+                            List<Address> findByCustomerId(Integer id);
+                        }
+                    2 - AuthorDao 无
+                        public interface AuthorDao 
+                                extends GenericDao<Author, Integer> {
+                        }
+                    3 - BookDao
+                        public interface BookDao 
+                                extends GenericDao<Book, Integer> {
+                            List<Book> findByName(String name);
+                            Book findByIsbn(String isbn);
+                            List<Book> findByPressId(Integer id);
+                            /*
+                             * // 通用的分页
+                            public PageBean findByPage
+                            (final String sql
+                            , final Object... params
+                            , final int currentPage
+                            , final int pageSize);
+                             */
+                        }
+                    4 - CategoryDao
+                        public interface CategoryDao 
+                                extends GenericDao<Category, Integer> {
+                            Category findByName(String name);
+                            List<Category> findByParentId(Integer parentId);
+                        }
+                    5 - CustomerDAO
+                        public interface CustomerDAO 
+                                extends GenericDao<Customer, Integer> {
+                            Customer findByName(String name);
+                        }
+                    6 - CustomerDetailsDao
+                        public interface CustomerDetailsDao extends CustomerDAO {
+                        }
+                    7 - OrderDao
+                        public interface OrderDao 
+                                extends GenericDao<Order, Integer> {
+                            Order findByOrderNum(String orderNum);
+                            List<Order> findByCustomerId(Integer customerId);
+                            List<Order> findByOrderDate(Timestamp begin, Timestamp end);
+                            List<Order> findByOrderState(String orderState);
+                        }
+                    8 - OrderDetailsDao
+                        public interface OrderDetailsDao 
+                                extends GenericDao<OrderDetails, Integer> {
+                            List<OrderDetails> findByOrderId(Integer orderId);
+                            List<OrderDetails> findByBookId(Integer bookId);
+                        }
+                    9 - PressDao 无
+                        public interface PressDao 
+                            extends GenericDao<Press, Integer> {
+                        }
+            com.bookshop.dao.jdbcimpl
+                所有的DAO接口的JDBC实现类
+            com.bookshop.util
+                项目中JDBC可能用到的所有的工具类
+        1. DBConfig
+        com.bookshop.dbutil包中：
+            1 - dbinfo.properties, 放在src根也可以，推荐放在src根下
+                driver=com.mysql.jdbc.Driver
+                url=jdbc:mysql://127.0.0.1:3306/bookshop?useUnicode=true&characterEncoding=UTF-8
+                usn=root
+                pwd=root
+            2 - DBConfig
+                public class DBConfig {
+                    // 声明私有静态Properties对象
+                    private static Properties prop = new Properties();
+                    // static code，只执行一次
+                    static{
+                        // "dbinfo.properties" 文件放在和DBConfig同一个位置
+                        prop.load(DBConfig.class.getResourceAsStream("dbinfo.properties"));
+                        // "/dbinfo.properties" 文件放在和src根目录下
+                        prop.load(DBConfig.class.getResourceAsStream("/dbinfo.properties"));
+                    }
+                    // 建立公有的属性
+                    public static String driver = prop.getProperty("driver");
+                    public static String url = prop.getProperty("url");
+                    public static String usn = prop.getProperty("usn");
+                    public static String pwd = prop.getProperty("pwd");
+                }           
+        2. BsaeDao
+        com.bookshop.dao.jdbcimpl包中
+        获取连接、关闭连接、发送普适的查询语句、发送普适的增删改语句
+            public abstract class BaseDao {
+                // 声明dbinfo相关参数
+                private static String driver;
+                private static String url;
+                private static String usn;
+                private static String pwd;
+                
+                // 声明JDBC相关属性对象
+                protected Connection conn;
+                protected PreparedStatement pstmt;
+                protected ResultSet rs;
+                protected int result = -1;
+
+                // 获取dbinfo数据，并注册驱动程序
+                static{
+                    // 获取dbinfo数据
+                    this.driver = DBConfig.driver;
+                    this.url = DBConfig.url;
+                    this.usn = DBConfig.usn;
+                    this.pwd = DBConfig.pwd;
+                    
+                    // 注册驱动程序
+                    Class.forName(driver);
+                }
+                
+                // 获取连接-Connection 
+                public void getConnection(){
+                    this.conn = DriverManager.getConnection(url, usn, pwd);
+                }
+
+                // 关闭方法
+                public void closeAll() {
+                    if (this.conn != null && !this.conn.isClosed()) {
+                            this.conn.close();
+                            this.result = -1;
+                    } 
+                }
+                
+                // 执行查询方法（支持sql语句中包含 ? 占位符参数）
+                public void executeQuery(final String sql, final Object... params) {
+                    //Object[] params  对于1.5一下的JDK版本
+                    pstmt = conn.prepareStatement(sql);  // 获取预处理语句对象
+                    if (params != null){
+                        // 通过循环替换SQL命令中的问号
+                        for (int i = 0; i < params.length; i++) {
+                            pstmt.setObject(i + 1, params[i]);
+                        }
+                    }
+                    rs = pstmt.executeQuery();  // 执行查询并返回结果
+                }
+                
+                // 执行增删改（支持sql语句中包含 ? 占位符参数）
+                public void executeUpdate(final String sql, final Object... params) {
+                    pstmt = conn.prepareStatement(sql);
+                    if (params != null){
+                        for (int i = 0; i < params.length; i++) {
+                            pstmt.setObject(i + 1, params[i]);
+                        }
+                    }
+                    result = pstmt.executeUpdate();
+                }
+                
+                // 根据任意字段进行查询
+                public abstract List<?> findByProperty(final String sql, final Object... params)
+            }
+        3. XxxDaoImpl
+            具体实现。。。。
+        
+3. MyBatis
+    0. 引入：
+        软件的分层：
+            单层、两层、三层、多层
+            逻辑分层和物理分层
+            MVC的分层架构
+                View - Controller - Model(biz|service - dao - po)
+            Dao层的作用
+                完成po的持久化操作，也称持久化层，基于JDBC实现。
+                ORMapping是持久化层的一种技术，此外还有主动域对象、JDO、CMP等技术模式。
+                主动域对象模式：在实体-po中封装了实体属性、关系映射、数据访问操作等细节。
+                JDO(Java Data Object)，SUN的描述对象持久化语义的API标准，可以将Object持久化到任何一种存储系统中
+                    包括：RDBMS、ORDBMS、XMLDBMS、其他存储系统
+                CMP(Container Managed Persistence)，由EJB容器管理实体EJB的持久化。
+        ORMapping 是什么？
+            http://baike.baidu.com/view/197951.htm
+            缺点：牺牲App程序效率。
+        ORMapping 映射什么？
+            Java class <=> 实体 <==> DBTable
+                1 - 实体名、实体属性的映射
+                    三种关系的映射
+                2 - 实体操作的映射
+                    事务操作的映射 - inset、update、delete
+                    查询操作的映射 - select == 关联关系的体现
+        ORMapping 的实现：
+            JDBC是基础！！
+            框架实现
+        ORMapping 常见框架：
+            JAVA系列：
+                APACHE OJB、CAYENNE、JAXOR、Hibernate、iBatis、JRELATIONALFRAMEWORK、SMYLE
+                TOPLINK - Oracle的商业项目
+            .Net也有。
+            其中：Hibernate和iBatis用的较多
+        iBatis|MyBatis
+            http://baike.baidu.com/view/4372646.htm
+            http://mybatis.github.io/
+            MyBatis是持久层框架，支持SQL定制、访问存储过程、关联映射，较hibernate更轻量级。
+                （优点：需jar包少、配置简洁、实施方便。缺点：需要用到较多的SQL语句。）
+            MyBatis可以不写绝大部分的JDBC代码，不需手工实现参数设置，不需使用代码获取结果集。
+            MyBatis的配置文件（系统|全局配置文件、映射配置文件）可以使用XML文件或注解实现。
+            MyBatis可将Dao接口和PO(Java 的 POJOs(Plain Old Java Objects,普通的 Java对象))映射成数据库中的记录。            
+        MyBatis需要掌握：
+            1 - 通过MyBatis操作数据库的基本步骤
+            2 - MyBatis借助接口实现数据库的增删改查
+            3 - MyBatis中的关联关系的实现
+            4 - Spring整合MyBatis在WebApp中实现Dao层
+    
+    1. MyBatis的基础使用：
+        MyBatis的配置文件 - 2个
+            系统|全局配置文件
+                默认：mybatis-config.xml，src根目录下。均可自定义。
+                包括内容：
+                    1 - 开发环境信息(数据源、事务管理、数据库连接池等)。
+                    2 - 映射配置文件的信息(名字和位置，有多个映射配置文件分别对应多个实体)。
+                    3 - 其他杂项参数的配置。
+            映射配置文件 
+                推荐：和对应的PO放在同一个文件夹下，名称为：对应实体类名.xml；均可自定义。
+                包含内容：
+                    1 - 实体属性的映射
+                    2 - 实体操作的映射
+                        select操作的映射、insert|update|delete操作的映射
+        MyBatis操作数据库的基本步骤：
+            1 - 读入系统|全局配置文件，并据此创建SessionFactory(MyBatis中是SqlSessionFactory)；
+            2 - 由SessionFactory产生session；
+            3 - 借助session完成CRUD操作和事务操作；
+            4 - 最后关闭session。
+            注意：
+                0> 先期需要完成 DBTable初始化、PO的创建、2个xml(系统|全局配置文件、映射配置文件)的创建
+                1> MyBatis中的session就是JDBC中的Connection
+                2> MyBatis中CRUD操作需要借助映射配置文件(.xml)完成
+****
+报错：MySQL accress deny
+解决：
+1 - 停止MySQL服务
+2 - 执行：
+    mysqld --skip-grant-tables
+3 - 重新启动MySQL服务
+*****
+        case 0 : Users表的查询操作
+            实现步骤：
+                0 - 开发环境搭建：
+                    0> DB Tables：Users(id, usn, loginName, pwd)
+                    1> new WebApp
+                    2> copy jar ==> /WEB-INF/lib
+                        mybatis-3.3.0.jar
+                        mysql-connector-java-5.1.13-bin.jar
+                1 - 创建MyBatis的系统|全局配置文件
+                    src/mybatis-config.xml
+                    文件头：定义xml版本、dtd声明
+                    ** 看下dtd文件
+                    ** 演示：本地设置，出提示的方法。http://www.tuicool.com/articles/MjQbQf
+                        <?xml version="1.0" encoding="UTF-8" ?>
+                        <!DOCTYPE configuration
+                          PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+                          "http://mybatis.org/dtd/mybatis-3-config.dtd">
+                        <configuration>
+                        ......
+                        </configuration>
+                    0) 别名是伙伴
+                    ** typeAlias(系统|全局配置文件中定义)对应resultType(映射配置文件中出现)，类型别名是伙伴；
+                        必须：类中属性和表中字段精确映射！
+                    ** resultMap(映射配置文件的标签)对应resultMap(映射配置文件中select等标签的属性)，结果映射是朋友
+                        适用于：类中的属性和表中字段不能精确映射的情况，如：关联映射！！
+                        <typeAliases>
+                            <typeAlias alias="User" type="com.bookshop.domain.po.User" />
+                        </typeAliases>
+                    1) 配置开发环境：
+                    ** <environments>下可以配置多个<environment>，分别对应不同的环境的MyBatis的配置
+                    ** 每个<environment>由属性id标识名称，该名称可以在
+                        SqlSessionFactory factory = sqlSessionFactoryBuilder.build(Reader reader, String environmentId);
+                            通过指定id的<environment>创建SessionFactory
+                    ** 在<environments>中使用属性default指定其下多个<environment>中默认的<environment>的id属性名，在
+                        SqlSessionFactory factory = sqlSessionFactoryBuilder.build(reader);
+                            通过默认的<environment>创建SessionFactory
+                    记住：
+                        每个 SqlSessionFactory 实例只能选择一个<environment>用来创建 
+                        每个数据库对应一个 SqlSessionFactory 实例
+                        <environments default="development">
+                            <environment id="development">
+                                <transactionManager type="JDBC" />
+                                <dataSource type="POOLED">
+                                    <property name="driver" value="com.mysql.jdbc.Driver" />
+                                    <property name="url" value="jdbc:mysql://127.0.0.1:3306/bookshop?useUnicode=true&characterEncoding=UTF-8" />
+                                    <property name="username" value="root" />
+                                    <property name="password" value="1" />
+                                </dataSource>
+                            </environment>
+                        </environments>
+                        其中：
+                            默认的环境 ID（比如:default=”development”）。
+                            每个 environment 元素定义的id（比如:id=”development”）。
+                            事务管理器的配置（比如:type=”JDBC”）。
+                                两种类型的事务管理器（type=”[JDBC|MANAGED]”）：
+                                    JDBC – 使用JDBC的提交和回滚设置，依赖于从数据源得到的连接来管理事务。
+                                    MANAGED – 从来不提交或回滚一个连接，而是让容器来管理事务的整个生命周期。 
+                                        默认情况下它会关闭连接。
+                                        如果不希望这样，可将 closeConnection 属性设置为 false 来阻止默认的关闭行为。
+                                        <transactionManager type="MANAGED">
+                                            <property name="closeConnection" value="false"/>
+                                        </transactionManager>
+                                如果Spring + MyBatis，不用配置事务管理器， 因为Spring会使用自带的事务管理器。
+                            数据源的配置（比如:type=”POOLED”）。
+                                使用标准的JDBC数据源接口来配置JDBC连接数据库的参数。
+                                三种内建的数据源类型（type=”[UNPOOLED|POOLED|JNDI]”）：
+                                    1> UNPOOLED– 只是每次被请求时打开和关闭连接，速度慢，用于对连接的时间没有性能要求的简单App中。
+                                        需要配置以下 5 个属性：
+                                        driver – JDBC 驱动类的完全限定名（全称包名）。
+                                        url – JDBC URL地址。
+                                        username – 数据库的用户名。
+                                        password – 数据库的密码。
+                                        defaultTransactionIsolationLevel – 默认的连接事务隔离级别。
+                                        ++可以传递属性给数据库驱动，属性的前缀为“driver.”
+                                            例如：
+                                                driver.useUnicode=true
+                                                driver.characterEncoding=UTF-8
+                                            通过DriverManager.getConnection(url,driverProperties)方法传递属性给数据库驱动。
+                                    2> POOLED– 使用数据库连接池，避免新建连接时所必需的初始化和认证时间。
+                                        多用于并发WebApp需要快速响应请求的情况。除上述UNPOOLED的属性外，有更多属性：
+                                        poolMaximumActiveConnections – 最大活动（正在使用）连接数，默认值：10
+                                        poolMaximumIdleConnections – 最大空闲连接数。
+                                        poolMaximumCheckoutTime – 最大的检查间隔时间，默认值：20000 毫秒（即 20 秒）。
+                                            在这个时间内如果该连接上没有操作，就会被取消此次连接。
+                                        poolTimeToWait – 最大的连接等待时间，默认值：20000 毫秒（即 20 秒）。
+                                        poolPingQuery – 发送到数据库的侦测查询，用来检验连接是否处在正常工作秩序中并准备接受请求。
+                                            默认是“NO PING QUERY SET”，数据库驱动失败时返回错误消息。
+                                        poolPingEnabled – 是否启用侦测查询。
+                                            若开启，须使用一个可执行的SQL语句设置poolPingQuery属性
+                                            （最好是一个非常快的SQLSelect语句），默认值：false。
+                                        poolPingConnectionsNotUsedFor – 配置 poolPingQuery 的使用频度。
+                                            可以被设置成匹配具体的数据库连接超时时间，来避免不必要的侦测。
+                                            默认值：0（即所有连接每一时刻都被侦测 — 仅在 poolPingEnabled 为 true 时适用）。
+                    2) 配置映射配置文件信息：
+                    ** 告诉MyBatis到哪里去找映射配置文件。
+                        映射配置文件中包含：实体属性和数据库表的字段的映射、SQL映射语句。
+                    ** 使用相对于类路径的资源引用， 或完全限定资源定位符（包括 file:/// 的 URL），或类名和包名等。
+                        <mappers>
+                            <mapper resource="com/bookshop/domain/po/User.xml" />
+                        </mappers>
+                MyBatis系统|全局配置文件，大致如此。
+                src/mybatis-config.xml
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+                    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+                    <configuration>
+                        <typeAliases>
+                            <typeAlias alias="User" type="com.bookshop.domain.po.User" />
+                        </typeAliases>
+
+                        <environments default="development">
+                            <environment id="development">
+                                <transactionManager type="JDBC" />
+                                <dataSource type="POOLED">
+                                    <property name="driver" value="com.mysql.jdbc.Driver" />
+                                    <property name="url" value="jdbc:mysql://127.0.0.1:3306/bookshop" />
+                                    <property name="driver.useUnicode" value="true"/>
+                                    <property name="driver.characterEncoding" value="UTF-8"/>
+                                    <property name="username" value="root" />
+                                    <property name="password" value="1" />
+                                </dataSource>
+                            </environment>
+                        </environments>
+                        <mappers>
+                            <mapper resource="com/bookshop/domain/po/User.xml" />
+                        </mappers>
+                    </configuration>
+                2 - 创建映射配置文件
+                    com.bookshop.domain.po.User(id, usn, loginName, pwd)
+                    com.bookshop.domain.po.User.xml
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+                        <mapper namespace="com.bookshop.dao.UserDao">
+                            <select id="findById" parameterType="int" resultType="User">
+                                select *
+                                from users where id = #{id}
+                            </select>
+                            <select id="findAll" parameterType="int" resultType="User">
+                                select * from users
+                            </select>
+                        </mapper>
+                    ！！ 映射配置文件是MyBatis的核心，很重要，慢慢的讲！！
+                    !! <mapper namespace 随便起名字，我就叫这个？原因是什么？
+                3 - 使用MyBatis完成DB操作
+                    0> 获取MyBatis系统|全局配置文件信息
+                        String resource = "mybatis-config.xml";
+                        reader = Resources.getResourceAsReader
+                            (UserFindByIdTest.class.getClassLoader(), resource);
+                    1> 生成SessionFactory
+                        SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(reader);
+                    2> 生成Session   
+                        SqlSession session = sessionFactory.openSession();
+                            SqlSession openSession()    // 默认开启一个事务(不自动提交)
+                            SqlSession openSession(boolean autoCommit)  // 指定事务(指定是否自动提交)
+                            SqlSession openSession(Connection connection)   // 由自定义的Connection获取session
+                            SqlSession openSession(TransactionIsolationLevel level) // 指定事务隔离级别
+                                    // org.apache.ibatis.session.TransactionIsolationLevel 枚举类型
+                            SqlSession openSession(ExecutorType execType,TransactionIsolationLevel level)
+                            SqlSession openSession(ExecutorType execType)
+                            SqlSession openSession(ExecutorType execType, boolean autoCommit)
+                            SqlSession openSession(ExecutorType execType, Connection connection)
+                                // ExecutorType。这个枚举类型定义了 3 个 值:
+                                    ExecutorType.SIMPLE: 为每个语句的执行创建一个新的预处理语句。
+                                    ExecutorType.REUSE: 复用预处理语句。
+                                    ExecutorType.BATCH: 批量执行所有更新语句。
+                            session.commit()/session.rollback()
+                    3> 获取映射配置文件中的SQL语句的映射，并指定
+                        List<User> users = session.selectList("com.bookshop.dao.UserDao.findAll");
+                        User user = (User)session.selectOne("com.bookshop.dao.UserDao.findById", 2);
+                            selectOne和selectList区别仅是selectOne必须返回一个对象。
+                            如果多余一个, 或者没有返回 (或返回了 null) 那么就会抛出异常。
+                                如果不知道返回多少个对象, 建议使用selectList。
+                            并不是所有语句都需要参数,这些方法均重载版本,给出需要参数对象。
+                    4> 关闭Session
+                        session.close();
+            case 0 总结：
+                    
+        case 1 : case 0 的优化
+            0 - 使用dbinfo.properties
+                系统|全局配置文件 mybatis-config.xml中：
+                加入：
+                    <properties resource="dbinfo.properties" />
+                修改datasource：
+                    <dataSource type="POOLED">
+                        <property name="driver" value="${driver}" />
+                        <property name="url" value="${url}" />
+                        <!-- 注意：如果dbinfo.properties中的url是：
+                            url = jdbc:mysql://127.0.0.1:3306/bookshop?useUnicode=true&characterEncoding=UTF-8
+                            下面driver.的两句就不需要了。
+                            其实默认就支持中文的。
+                        -->
+                        <property name="driver.useUnicode" value="true" />
+                        <property name="driver.characterEncoding" value="UTF-8" />
+                        <property name="username" value="${user}" />
+                        <property name="password" value="${pwd}" />
+                    </dataSource>
+            1 - 使用接口绑定实现
+                讨论：
+                    是不是JDBC的impl写烦了？
+                    映射配置文件中的命名空间-namespace的作用是什么？
+                命名空间（Namespaces）
+                    在之前版本是可选的，没用。
+                    现在的命名空间则是必须的，可以实现接口绑定。
+                接口绑定前提：
+                    接口名(UserDao)和命名空间(namespace)一致
+                    接口中的方法(findById、findAll)和映射配置文件中的SQL映射语句的id一样
+                实现步骤：  
+                    0> 定义UserDao
+                        com.bookshop.dao.UserDao
+                        public interface UserDao extends GenericDao<User, Integer> {
+                        }
+                    1> 由session获取Mapper
+                        UserDao userDao=session.getMapper(UserDao.class);
+                    2> 调用接口中和SQL映射语句同名的方法
+                         List<User> users = userDao.findAll();
+                         User user = userDao.findById(1);  
+            case 1 总结：
+            
+    2. MyBatis借助接口实现数据库的增删改查：
+        case 2 : 单表的CRUD
+            命名空间的再讨论：
+                映射配置文件中，mapper namespace="命名空间名称-建议是对应的XxxDao接口的全限定名称"
+                    必须与定义的package和Dao接口一致
+                实现功能：
+                    基于绑定接口编程的基础上完成:
+                    · 查询数据，包括列表查询、单一查询
+                    · 增加|插入数据
+                    · 更新数据.
+                    · 删除数据.
+                resultType和resultMap
+                    二者在SQL语句映射标签中只能出现一次，二选一的关系。
+                resultType-结果(集)类型别名（伙伴）在映射配置文件SQL语句映射标签中的使用、reingsultMap-结果(集)映射是朋友
+                    1 - resultType在系统|全局配置文件中定义。
+                        结果类型对应的PO实体类别名是伙伴，可以不用输入类的全路径。
+                    2 - resultMap在映射配置文件中定义。 
+                        结果映射是朋友。
+                        最复杂、强大的元素，描述如何从数据库结果集中来加载对象，简单理解：描述实体属性的映射。
+                实体属性映射：<resultMap 标签
+                    是MyBatis中最重要、强大的元素，可以简单理解为完成实体类属性和表中字段的映射。
+                    主要实现从结果集中取出数据，相当于JDBC中的ResultSet,而且还可以执行JDBC 不支持的操作。
+                    比如：复杂SQL语句联合映射的功能代码。
+                    ResultMap应用：简单语句不需要明确的结果映射,复杂语句需要描述它们映射关系(实体类属性<==>表中字段)。
+                    简单原始的映射：==简单映射语句示例，没有明确的 resultMap。比如:
+                        <select id="selectUsers" resultType="map">
+                          select id, username, hashedPassword
+                          from some_table
+                          where id = #{id}
+                        </select>
+                        所有列被自动映射到 HashMap 的key上,由resultType属性指定。
+                        HashMap不能很好描述一个PO实体类(领域模型)。
+                        App应该使用JavaBeans或POJOs(Plain Old Java Objects,普通 Java 对象)来作为PO实体类(领域模型)。
+                        MyBatis两者都支持。
+                    如，定义一下PO实体类: User(id, username, hashedPassword)，3 个属性:id,username 和 hashedPassword。
+                        select语句中使用resultType会精确匹配到列名。
+                        映射到结果集类型,类似映射到 HashMap。
+                        <select id="selectUsers" resultType="User--注意需要使用别名描述PO实体类">
+                          select id, username, hashedPassword
+                          from some_table
+                          where id = #{id}
+                        </select>
+                        /*
+                            记住类型别名是伙伴。使用它们可以不用输入类的全路径。比如:
+                            <!-- 在MyBatis系统|全局配置文件：mybatis-config.xml中 -->
+                            <typeAlias type="com.someapp.model.User" alias="User"/>
+
+                            <!-- 在MyBatis映射配置文件中 -->
+                            <select id="selectUsers" resultType="User">
+                              select id, username, hashedPassword
+                              from some_table
+                              where id = #{id}
+                            </select>
+                        */
+                    MyBatis会自动创建一个ResultMap,基于属性名来映射表中列(子弹)到PO实体类(JavaBean)的属性。
+                        如果列名没有精确匹配,解决方式之一(！该方法不推荐！)：
+                        在列名上使用select语句的字段别名来匹配。比如:
+                            <select id="selectUsers" resultType="User">
+                              select
+                                user_id             as "id",
+                                user_name           as "userName",
+                                hashed_password     as "hashedPassword"
+                              from some_table
+                              where id = #{id}
+                            </select>
+                    resultMap标签有很多子标签，常见的子标签如下：
+                        constructor - 类在实例化时,用来注入结果到构造方法中
+                            idArg - ID 参数;标记结果作为ID可以提高访问效率
+                            arg - 参数，表示注入到构造方法的一个普通结果
+                        id - 一个 ID 结果;标记结果作为ID可以提高访问效率
+                        result - 注入到字段或 JavaBean 属性的普通结果
+                        association - 一个复杂的类型关联;在实现关联关系映射时许多结果以这种类型体现
+                            嵌入结果映射 - 结果映射自身的关联,或者参考一个其他的结果映射
+                        collection - 复杂类型的集合
+                            嵌入结果映射 – 结果映射自身的集合,或者参考一个其他的结果映射
+                        discriminator - 使用结果值来决定使用哪个结果映射
+                            case - 基于某些值的结果映射
+	                嵌入结果映射 – 可以映射自身,因此可以包含很多相同的元素,或者也可以参照一个外部的结果映射。
+
+
+                实体操作映射：以下SQL语句映射标签
+                    sql – 可被其他语句引用的可重用语句块。
+                    insert – 映射插入语句
+                    update – 映射更新语句
+                    delete – 映射删除语句
+                        属性说明：
+                            id  命名空间中的唯一标识符，用来代表这条语句。
+                            parameterType   传入这条语句的参数类的完全限定名或别名。
+                                            可选的，MyBatis可以通过TypeHandler推断出具体传入语句的参数，默认为 unset。
+                            parameterMap    废弃的方法。
+                            flushCache  true时，只要语句被调用，本地缓存和二级缓存都会被清空，默认值：false。
+                            timeout     在抛出异常之前，驱动程序等待数据库返回请求结果的秒数。默认值为 unset（依赖驱动）。
+                            statementType   STATEMENT，PREPARED 或 CALLABLE 的一个。
+                                        MyBatis 分别使用 Statement，PreparedStatement 或 CallableStatement，默认值：PREPARED。
+                            useGeneratedKeys    （仅对 insert 和 update 有用）
+                                        让MyBatis 使用 JDBC 的 getGeneratedKeys 方法来取出由数据库内部生成的主键
+                                        （比如：像 MySQL 和 SQL Server 这样的关系数据库管理系统的自动递增字段），默认值：false。
+                            keyProperty （仅对 insert 和 update 有用）唯一标记一个属性，
+                                        MyBatis 会通过 getGeneratedKeys 的返回值
+                                        或者通过 insert 语句的 selectKey 子元素设置它的键值，默认：unset。
+                                        如果希望得到多个生成的列，也可以是逗号分隔的属性名称列表。
+                            keyColumn   （仅对 insert 和 update 有用）通过生成的键值设置表中的列名，
+                                        这个设置仅在某些数据库（像 PostgreSQL）是必须的，当主键列不是表中的第一列的时候需要设置。
+                                        如果希望得到多个生成的列，也可以是逗号分隔的属性名称列表。
+                            databaseId  如果配置了 databaseIdProvider，MyBatis 会加载所有的不带 databaseId 
+                                        或匹配当前 databaseId 的语句；如果带或者不带的语句都有，则不带的会被忽略。
+                            插入语句的配置规则更加丰富，在插入语句里面有一些额外的属性和子元素用来处理主键的生成，
+                                    而且有多种生成方式。
+                                    首先，如果数据库支持自动生成主键的字段（比如 MySQL 和 SQL Server），
+                                        那么可以设置 useGeneratedKeys=”true”，
+                                    然后再把 keyProperty 设置到目标属性上。
+                    select – 映射查询语句
+                        属性说明：
+                            id  命名空间中唯一的标识符，用来引用这条语句。
+                            parameterType   传入这条语句的参数类的完全限定名或别名。
+                                            可选的，MyBatis可以通过TypeHandler推断出具体传入语句的参数，默认为 unset。
+                            parameterMap    废弃的方法。
+                            resultType  返回的期望类型的类的完全限定名或别名。
+                                        如果是集合，应该是集合可以包含的类型，而不是集合本身。
+                                        使用resultType或resultMap，但不能同时使用，二选一。
+                            resultMap   外部 resultMap 的命名引用。
+                                        结果集的映射是MyBatis 最强大的特性。
+                                        使用 resultMap 或 resultType，但不能同时使用，二选一。
+                            flushCache  true时，只要语句被调用，本地缓存和二级缓存都会被清空，默认值：false。
+                            useCache    true时，语句的结果被二级缓存，默认值：对 select 元素为 true。
+                            timeout     在抛出异常之前，驱动程序等待数据库返回请求结果的秒数。默认值为 unset（依赖驱动）。
+                            fetchSize   尝试影响驱动程序每次批量返回的结果行数和这个设置值相等。默认值为 unset（依赖驱动）。
+                            statementType   STATEMENT，PREPARED 或 CALLABLE 的一个。
+                                        MyBatis 分别使用 Statement，PreparedStatement 或 CallableStatement，默认值：PREPARED。
+                            resultSetType   FORWARD_ONLY，SCROLL_SENSITIVE 或 SCROLL_INSENSITIVE 中的一个，
+                                        默认值为 unset （依赖驱动）。
+                            databaseId  如果配置了 databaseIdProvider，
+                                        MyBatis 会加载所有的不带 databaseId 或匹配当前 databaseId 的语句；
+                                        如果带或者不带的语句都有，则不带的会被忽略。
+                            resultOrdered   仅针对嵌套结果 select 语句适用：
+                                        如果为 true，就是假设包含了嵌套结果集或是分组了，
+                                        此时当返回一个主结果行的时候，就不会发生有对前面结果集的引用的情况。
+                                        使在获取嵌套的结果集的时候不至于导致内存不够用。默认值：false。
+                            resultSets  仅对多结果集的情况适用，
+                                        它将列出语句执行后返回的结果集并每个结果集给一个名称，名称是逗号分隔的。
+
+            0 - 映射配置文件完成映射：
+                com.bookshop.domain.po.User.xml加入：
+                    实体属性映射：放在最前面
+                        <!-- 为了返回list 类型而定义的returnMap -->
+                        <resultMap type="User" id="userList">
+                            <id column="id" property="id" />
+                            <result column="usn" property="usn" />
+                            <result column="loginName" property="loginName" />
+                            <result column="pwd" property="pwd" />
+                        </resultMap>
+                        说明：
+                            · type在系统|全局配置文件中定义的别名
+                            · 指定resultMap-结果映射的名字，在SQL语句映射标签中使用
+                            · column指定表中字段名称，property指定对应的PO类中的属性名称，
+                                二者是对应|映射关系，可以更灵活的指定字段<==>属性的映射关系！
+                    实体操作映射-select：
+                        <!-- 返回list 的select 语句，注意 resultMap 的值是指向前面定义的resultMap的id -->
+                        <select id="findByUsn" parameterType="string" resultMap="userList">
+                            select *
+                            from users where usn like #{usn}
+                        </select>
+                        <select id="findByLoginName" parameterType="string" resultType="User">
+                            select *
+                            from users where loginName like #{loginName}
+                        </select>
+            1 - 接口中添加方法
+                UserDao接口中添加:查询方法
+                    public interface UserDao extends GenericDao<User, Integer> {
+                        List<User> findByUsn(String usn);
+                        User findByLoginName(String loginName);
+                    }
+                说明： 
+                    · 方法返回值为List<User>泛型！
+                    · 方法名字和SQL映射标签<select...>中id属性名字相同
+                    · 方法参数类型和SQL语句映射标签<select...>中parameterType属性名字声明的参数类型相同
+                        参数的名字，推荐和SQL语句映射标签中sql语句的参数的占位符相同，推荐是字段|属性的名称
+                    · 只要声明接口就可以了，不用完成Impl的实现类。
+                        所以，省掉了绝大部分的JDBC的语句！
+                测试类：
+                    users = userDao.findByUsn("李老四");
+                    user = userDao.findByLoginName("lilaosi");
+            2 - 实体映射：CUD
+                com.bookshop.domain.po.User.xml加入：
+                * insert
+                    实体操作映射-CRU：
+                        <!--执行增加操作的SQL语句。id和parameterType分别与UserDao接口中的insert方法的名字和 参数类型一致。
+                        以#{usn}的形式引用方法User参数 的usn属性，MyBatis将使用反射读取User参数  的此属性。
+                        #{usn}中usn大小写敏感，因为是Java中的方法参数。引用其他  的loginName、pwd等属性与此一致。
+                        seGeneratedKeys设置为"true"表明要MyBatis获取由数据库自动生成的主键；
+                        keyProperty="id"指定把获取到的主键值注入 到User的id属性--> 
+                        <insert id="insert" parameterType="User" 
+                            useGeneratedKeys="true" keyProperty="id"> 
+                            insert into users(usn, loginName, pwd)  
+                                 values(#{usn},#{loginName},#{pwd})  
+                        </insert>
+                    com.bookshop.dao.UserDao接口中无需添加
+                        因为extends GenericDao<User, Integer>中有insert方法。
+                    测试类：
+                        User userInsert = new User("赵老六", "zhaolaoliu", "zhaolaoliu");
+                        userDao.insert(userInsert);
+                        session.commit();
+                        session.close();
+                        说明：
+                            必须有session.commit();和session.close();
+                * update
+                    实体操作映射-CRU：
+                        <update id="update" parameterType="User" >
+                            update users set usn=#{usn},loginName=#{loginName},pwd=#{pwd} where id=#{id}
+                        </update>
+                    com.bookshop.dao.UserDao接口中无需添加
+                        因为extends GenericDao<User, Integer>中有update方法。
+                    测试类：
+                        User userUpdate = new User(3, "新赵老六", "newzhaolaoliu", "newzhaolaoliu");
+                        userDao.update(userUpdate);
+                        session.commit();
+                        session.close();
+                * delete
+                    实体操作映射-CRU：
+                        <delete id="delete" parameterType="int">
+                            delete from users 
+                            where id=#{id}
+                        </delete> 
+                        说明：
+                            为什么只有一个<delete SQL映射语句标签？
+                            因为实际实现的时候，其实是调用User.getId()方法！
+                            本质上，userDao.delete(User user)其实就是userDao.delete(Integer id)
+                    com.bookshop.dao.UserDao接口中无需添加
+                        因为extends GenericDao<User, Integer>中有delete(Integer id)和delete(User user)方法。
+                    测试类：
+                        userDao.delete(3);
+                        // 只关注id，所以只要设置id值即可！
+                        User userDelete = new User();
+                        userDelete.setId(4);
+                        userDao.delete(userDelete);
+                        session.commit();
+                        session.close();
+            case 2 总结：
+                增加，更改，删除要调用session.commit()，真正提交到数据库进行CUD操作。
+    3. MyBatis中的关联关系的实现
+        理论讲解：
+            实现方式，两种：
+                ##1. 联表查询
+                    嵌套结果：使用嵌套结果映射来处理重复的联合结果的子集封装联表查询的数据
+                        (需要去除重复的数据)
+                        和普通的只由 select 和 resultMap 属性的结果映射不同。
+
+                ##2. 执行两次查询
+                    嵌套查询：通过执行另外一个SQL映射语句来返回预期的复杂类型
+                    SELECT * FROM Table_A WHERE table_a_id= x;
+                    SELECT * FROM Table_B WHERE table_b_id= y   //y 是上一个查询得到|本次查询需要的table_b_id的值
+                    ！！需要详细的具体举例！！
+            1:1 关联查询-嵌套查询实现思想：
+                使用association实现一对一|多的一边的关联查询
+                    属性如下：
+                        •property:对象属性的名称
+                        •javaType:对象属性的类型
+                        •column:所对应的外键字段名称
+                            数据库表的字段名,或重命名的列|字段标签。
+                            和传递给 resultSet.getString(columnName)方法的字符串一样。 
+                            注 意 : 复合主键的处理： 
+                                指定多个列名通过column="{prop1=col1,prop2=col2}"语法
+                                传递参数给嵌套查询语句。
+                                prop1 和 prop2 以参数对象形式来传递给目标嵌套查询语句。
+                        •select:使用另一个查询封装的结果
+                            给出另外需要的一个SQL语句映射的 ID,使用属性映射需要的复杂类型。
+                            column属性的值传递给目标 select 语句作为参数。
+                            同样需要注意复合主键的情况，见上。
+            1:1 关联查询-嵌套查询的缺点：
+                简单, 但对于大型数据集合和列表将不好。 
+                会有 1+N 也叫 N+1 查询问题”。
+                    引起原因:
+                    •执行一个单独的 SQL 语句来获取结果列表(就是“1”)。
+                    •对返回的每条记录,执行一个查询语句来为每个加载细节(就是“N”)。
+                导致很多的 SQL 语句被执行。
+                延迟加载可以解决这类问题。但,如果完成1后,马上访问嵌套的数据,会执行所有原先需要延迟的加载
+                    同样引起1+N中的N的执行。
+                即：
+                    延迟加载只是在代码逻辑上先执行1，后面根据需要在执行N。
+                    但如果在业务逻辑上，执行1后，马上业务需要立即执行N，本质还是1+N。
+                所以需要第一种方式：嵌套结果。
+
+            1:1 关联查询-嵌套查询实现步骤总结：
+                。。。。
+            1:n 关联查询-嵌套查询实现思想：
+                collection实现一对多中一的一边的关联查询
+                    ofType属性指定集合中元素的对象类型。
+
+        case 3 : 关联映射：使用第二种：关联的嵌套查询实现，逻辑简单，但会产生1+N的问题
+            三种关系的映射：
+                1:1 
+                    唯一字段做外键 双向
+                    主键做外键 双向
+                1:n
+                    双向
+                m:n
+                    本质上是一对多的多一面！
+        1:1 == 唯一字段做外键
+            1：Users(id, usn, loginName, pwd)
+            1: UserPassports(id, num, userId)
+            步骤：
+            UserPassports  : 本质上多的一边！！！！
+                0： 准备
+                    实体类==映射、mabatis-config.xml==alias&mapper
+                        <typeAliases>
+                            <typeAlias type="com.bookshop.domain.po.User" alias="User"/>
+                            <typeAlias type="com.bookshop.domain.po.UserPassport" alias="UserPassport"/>
+                        </typeAliases>
+                        ---
+                        <mappers>
+                            <mapper resource="com/bookshop/domain/po/User.xml"/>
+                            <mapper resource="com/bookshop/domain/po/UserPassport.xml"/>
+                        </mappers>
+
+                1： mapper.xml
+                    resultMap
+                    select
+                    
+                        <!-- 第二种 -->
+                        <select id="getUserById" parameterType="int" resultType="User">
+                            select *
+                            from users
+                            where id = #{id}
+                        </select>
+                        <resultMap type="UserPassport" id="UserPassportByGetUserId">
+                            <id column="id" property="id" />
+                            <result column="num" property="num" />
+                            <association property="user" column="userId" select="getUserById"/>
+                        </resultMap>
+                        <select id = "findById" parameterType="int" resultMap="UserPassportByGetUserId">
+                            select * 
+                            from UserPassports 
+                            where id = #{id}
+                        </select>
+                    
+                2: Dao
+                        public interface UserPassportDao extends GenericDao<UserPassport, Integer> {
+                        }
+                3: Test
+                        UserPassportDao userPassportDao = session.getMapper(UserPassportDao.class);
+                        UserPassport userPassport = userPassportDao.findById(2)
+            User
+                0：准备
+                    实体类
+                1: mapper
+                    <!-- 第二种 -->
+                    <select id="getUserPassportById" parameterType="int" resultType="UserPassport">
+                        select *
+                        from UserPassports
+                        where id = #{id}
+                    </select>
+                    <resultMap type="User" id="getUserById">
+                        <id column="id" property="id" />
+                        <result column = "usn" property = "usn"/>
+                        <result column = "loginName" property = "loginName"/>
+                        <result column = "pwd" property = "pwd"/>
+                        <association property="userPassport" column="id" select="getUserPassportById"/>
+                    </resultMap>
+                    <select id = "findById" parameterType="int" resultMap="getUserById">
+                        select * 
+                        from Users 
+                        where id = #{id}
+                    </select>
+                2：UserDao
+                3: Test
+                    UserDao userDao = session.getMapper(UserDao.class);
+                    User user = userDao.findById(2);
+                    
+        1:1 == 主键做外键
+            1：Users(id, usn, loginName, pwd)
+            1: UserDetailses(id, gender)
+            步骤：
+            UserDetails
+                0：准备
+                    实体类==映射、mabatis-config.xml==alias&mapper
+                        <typeAliases>
+                            <typeAlias type="com.bookshop.domain.po.User" alias="User"/>
+                            <typeAlias type="com.bookshop.domain.po.UserPassport" alias="UserPassport"/>
+                            <typeAlias type="com.bookshop.domain.po.UserDetails" alias="UserDetails"/>
+                        </typeAliases>
+                        ---
+                        <mappers>
+                            <mapper resource="com/bookshop/domain/po/User.xml"/>
+                            <mapper resource="com/bookshop/domain/po/UserPassport.xml"/>
+                            <mapper resource="com/bookshop/domain/po/UserDetails.xml"/>
+                        </mappers>
+
+                1： mapper.xml
+                    resultMap
+                    select
+                        <!-- 第二种 -->
+                        <select id="getUserById" parameterType="int" resultType="User">
+                            select *
+                            from users
+                            where id = #{id}
+                        </select>
+                        <resultMap type="UserDetails" id="UserDetailsByGetId">
+                            <id column="id" property="id" />
+                            <result column="gender" property="gender" />
+                            <association property="user" column="id" select="getUserById"/>
+                        </resultMap>
+                        <select id = "findById" parameterType="int" resultMap="UserDetailsByGetId">
+                            select * 
+                            from UserDetailses 
+                            where id = #{id}
+                        </select>
+                2: Dao
+                        public interface UserDetailsDao extends GenericDao<UserDetails, Integer> {
+                        }
+                3: Test
+                        UserDetailsDao userDetailsDao = session.getMapper(UserDetailsDao.class);
+                        UserDetails userDetails = userDetailsDao.findById(2);
+                    
+            User
+                0：准备
+                    实体类
+                1: mapper
+                    <!-- 第二种 -->
+                    <select id="getUserPassportById" parameterType="int" resultType="UserPassport">
+                        select *
+                        from UserPassports
+                        where id = #{id}
+                    </select>
+                    <select id="getUserDetailsById" parameterType="int" resultType="UserDetails">
+                        select *
+                        from UserDetailses
+                        where id = #{id}
+                    </select>
+                    <resultMap type="User" id="getUserById">
+                        <id column="id" property="id" />
+                        <result column = "usn" property = "usn"/>
+                        <result column = "loginName" property = "loginName"/>
+                        <result column = "pwd" property = "pwd"/>
+                        <association property="userPassport" column="id" select="getUserPassportById"/>
+                        <association property="userDetails" column="id" select="getUserDetailsById"/>
+                    </resultMap>
+                    <select id = "findById" parameterType="int" resultMap="getUserById">
+                        select * 
+                        from Users 
+                        where id = #{id}
+                    </select>
+                2：UserDao
+                3: Test
+                    UserDao userDao = session.getMapper(UserDao.class);
+                    User user = userDao.findById(2);
+
+        1:n ==    
+            1：Users(id, usn, loginName, pwd)
+            n: Posts(id, subject, content, userId)   
+            步骤：
+            Post  : 多的一边！！！！
+                0： 准备
+                    实体类==映射、mabatis-config.xml==alias&mapper   
+                    <typeAliases>
+                        <typeAlias type="com.bookshop.domain.po.User" alias="User"/>
+                        <typeAlias type="com.bookshop.domain.po.UserPassport" alias="UserPassport"/>
+                        <typeAlias type="com.bookshop.domain.po.UserDetails" alias="UserDetails"/>
+                        <typeAlias type="com.bookshop.domain.po.Post" alias="Post"/>
+                    </typeAliases>
+                    ---
+                    <mappers>
+                        <mapper resource="com/bookshop/domain/po/User.xml"/>
+                        <mapper resource="com/bookshop/domain/po/UserPassport.xml"/>
+                        <mapper resource="com/bookshop/domain/po/UserDetails.xml"/>
+                        <mapper resource="com/bookshop/domain/po/Post.xml"/>
+                    </mappers>
+                1: mapper
+                    <!-- 第二种 -->
+                    <select id="getUserById" parameterType="int" resultType="User">
+                        select *
+                        from users
+                        where id = #{id}
+                    </select>
+                    <resultMap type="Post" id="getPostById">
+                        <id column="id" property="id" />
+                        <result column="subject" property="subject" />
+                        <result column="content" property="content"/>
+                        <association property="user" column="userId" select="getUserById"/>
+                    </resultMap>
+                    <select id = "findById" parameterType="int" resultMap="getPostById">
+                        select * 
+                        from Posts  
+                        where id = #{id}
+                    </select>
+                2：PostDao
+                    public interface PostDao extends GenericDao<Post, Integer> {
+                    }
+                3: Test
+                    PostDao postDao = session.getMapper(PostDao.class);
+                    Post post = postDao.findById(5);
+                    
+            User  : 一的一边！！！！
+                0： 准备
+                    实体类==映射
+                1：mapper
+                    <!-- 第二种 -->
+                    <select id="getUserPassportById" parameterType="int" resultType="UserPassport">
+                        select *
+                        from UserPassports
+                        where id = #{id}
+                    </select>
+                    <select id="getUserDetailsById" parameterType="int" resultType="UserDetails">
+                        select *
+                        from UserDetailses
+                        where id = #{id}
+                    </select>
+                    <select id="getPostsById" parameterType="int" resultType="Post">
+                        select * 
+                        from Posts
+                        where userId = #{id}  
+                    </select>
+                    <resultMap type="User" id="getUserById">
+                        <id column="id" property="id" />
+                        <result column = "usn" property = "usn"/>
+                        <result column = "loginName" property = "loginName"/>
+                        <result column = "pwd" property = "pwd"/>
+                        <association property="userPassport" column="id" select="getUserPassportById"/>
+                        <association property="userDetails" column="id" select="getUserDetailsById"/>
+                        <collection property="posts" ofType="Post" column="id" select="getPostsById"></collection>
+                    </resultMap>
+                    <select id = "findById" parameterType="int" resultMap="getUserById">
+                        select * 
+                        from Users 
+                        where id = #{id}
+                    </select>
+
+
+

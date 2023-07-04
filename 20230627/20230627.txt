@@ -1,0 +1,30 @@
+20230627 
+0. 提交资料
+    每日提交：程序员日志...
+
+1. 日程安排
+    本周：数据抓取、爬取
+    下周：NLP & 知识图谱基础
+
+2. 软件项目开发的生命周期检视
+
+
+----
+在 Python 语言环境中 安装 scikit-learn (sklearn)
+0. scikit-learn 官网
+    https://scikit-learn.org/stable/index.html
+
+1. 安装
+    1- https://scikit-learn.org/stable/install.html
+        pip install -U scikit-learn
+    2- https://pypi.org/
+        https://pypi.org/project/scikit-learn/
+            pip install scikit-learn
+    3- for intel CPU 的优化版本
+        pip install scikit-learn-intelex
+      intelex 使用：https://zhuanlan.zhihu.com/p/463771389
+
+
+作业：
+    1. 完成 git 游戏通关，截图
+    2. 完成 算法演练 1~5

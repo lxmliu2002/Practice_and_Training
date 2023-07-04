@@ -1,0 +1,594 @@
+﻿# -*- coding: utf-8 -*-
+
+## 任务3.1：读写不同数据源的数据
+
+# 代码 1：连接数据库
+/*
+首先安装：pip install sqlalchemy
+
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8‘)
+需要安装：pip install pymysql
+
+engine = create_engine('mysql+mysqlconnector://root:password@localhost:3306/test’)
+需要安装：
+pip install mysql-connector-python mysql-connector-python
+或者pip install mysql-connector-python --allow-external mysql-connector-python 
+或者 pip install mysql-connector
+
+*/
+from sqlalchemy import create_engine
+## 创建一个mysql连接器，用户名为root，密码为root
+## 地址为127.0.0.1，数据库名称为testdb，编码为utf-8
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb')
+#engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8')
+print(engine)
+
+# 代码 2：读取数据库数据
+import pandas as pd
+## 使用read_sql_query查看tesdb中的数据表数目
+formlist = pd.read_sql_query('show tables', con = engine)
+print('testdb数据库数据表清单为:','\n',formlist)
+
+## 使用read_sql_table读取订单详情表
+detail1 = pd.read_sql_table('meal_order_detail1',con = engine)
+print('使用read_sql_table读取订单详情表的长度为:',len(detail1))
+
+## 使用read_sql读取订单详情表
+detail2 = pd.read_sql('select * from meal_order_detail2', con = engine)
+print('使用read_sql函数+sql语句读取的订单详情表长度为:',len(detail2))
+detail3 = pd.read_sql('meal_order_detail3',con = engine)
+print('使用read_sql函数+表格名称读取的订单详情表长度为:', len(detail3))
+
+# 代码 3：使用 to_sql 写入数据
+## 使用to_sql存储orderData
+detail1.to_sql('test1',con = engine,index = False, if_exists = 'replace')
+df = pd.DataFrame({'balance': [10000.000], 'account': ['13579.SH'], 'charges': [0.0005]})
+df.to_sql(name='my_balance', con=engine, if_exists='append',
+            index=True, index_label='id')
+
+## 使用read_sql读取数据库中表信息
+formlist1 = pd.read_sql_query('show tables',con = engine)
+print('新增一个表格后testdb数据库数据表清单为：','\n',formlist1)
+
+# 代码 4：使用 read_table 和 read_csv 读取菜品订单信息表
+## 使用read_table读取订单信息表
+order = pd.read_table('../data/meal_order_info.csv', sep = ',',encoding = 'gbk')
+print('使用read_table读取的订单信息表的长度为：',len(order))
+
+## 使用read_csv读取订单信息表
+order1 = pd.read_csv('../data/meal_order_info.csv', encoding = 'gbk')
+print('使用read_csv读取的订单信息表的长度为：',len(order1))
+
+# 代码 5：更改参数读取菜品订单信息表
+## 使用read_table读取菜品订单信息表,sep = ';'
+order2 = pd.read_table('../data/meal_order_info.csv', sep = ';',encoding = 'gbk')
+print('分隔符为;时订单信息表为：\n',order2)
+
+## 使用read_csv读取菜品订单信息表,header=None
+order3 = pd.read_csv('../data/meal_order_info.csv', sep = ',',header = None,encoding = 'gbk')
+print('订单信息表为：','\n',order3)
+
+## 使用gbk解析菜品订单信息表
+#order4 = pd.read_csv('../data/meal_order_info.csv', sep = ',',encoding = 'utf-8')
+order4 = pd.read_csv('../data/meal_order_info.csv', sep = ',',encoding = 'gbk')
+
+# 代码 6：使用 to_csv 将数据写入 CSV 文件中
+import os
+print('订单信息表写入文本文件前目录内文件列表为：\n', os.listdir('../tmp'))
+## 将order以csv格式存储
+order.to_csv('../tmp/orderInfo.csv',sep = ';',index = False) 
+print('订单信息表写入文本文件后目录内文件列表为：\n', os.listdir('../tmp'))
+
+# 代码 7：使用 read_excel 读取用户信息表
+user = pd.read_excel('../data/users.xlsx')## 读取user.xlsx文件
+print('客户信息表长度为：',len(user))
+
+# 代码 8：使用 to_excel 将数据存储为 Excel 文件
+print('客户信息表写入excel文件前目录内文件列表为：\n', os.listdir('../tmp'))
+user.to_excel('../tmp/userInfo.xlsx')
+print('客户信息表写入excel文件后目录内文件列表为：\n', os.listdir('../tmp'))
+
+
+### 案例 ：读入订单详情数据库数据
+# 代码 9：读取订单详情表
+## 导入SQLAlchemy库的creat_engine函数
+from sqlalchemy import create_engine
+import pandas as pd
+## 创建一个mysql连接器，用户名为root，密码为root
+## 地址为127.0.0.1，数据库名称为testdb
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8')
+## 使用read_sql_table读取订单详情表格
+order1 = pd.read_sql_table('meal_order_detail1',con = engine)
+print('订单详情表1的长度为:',len(order1))
+order2 = pd.read_sql_table('meal_order_detail2',con = engine)
+print('订单详情表2的长度为:',len(order2))
+order3 = pd.read_sql_table('meal_order_detail3',con = engine)
+print('订单详情表3的长度为:',len(order3))
+
+# 代码 10：读取订单信息表
+## 使用read_table读取订单信息表
+orderInfo = pd.read_table('../data/meal_order_info.csv', sep = ',',encoding = 'gbk')
+print('订单信息表的长度为：',len(orderInfo))
+
+# 代码 11：读取客户信息表
+## 读取user.xlsx文件
+userInfo = pd.read_excel('../data/users.xlsx',  sheetname = 'users1')
+print('客户信息表的长度为：',len(userInfo))
+
+
+## 任务3.2 DataFrame的常用操作
+
+# 代码 12：订单详情表的 4 个基本属性
+from sqlalchemy import create_engine
+import pandas as pd
+## 创建数据库连接
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=gbk')
+detail= pd.read_sql_table('meal_order_detail1',con = engine)
+print('订单详情表的索引为：', detail.index)
+print('订单详情表的所有值为：','\n', detail.values)
+print('订单详情表的列名为：','\n', detail.columns)
+print('订单详情表的数据类型为：','\n', detail.dtypes)
+
+# 代码 13：size、ndim、shape 属性的使用
+## 查看DataFrame的元素个数
+print('订单详情表的元素个数为：', detail.size)
+print('订单详情表的维度数为：', detail.ndim) ## 查看DataFrame的维度数
+print('订单详情表的形状为：', detail.shape) ## 查看DataFrame的形状
+
+# 代码 14：使用 T 属性进行转置
+print('订单详情表转置前形状为：',detail.shape)
+print('订单详情表转置后形状为为：',detail.T.shape)
+
+# 代码 15：使用字典访问内部数据的方式访问 DataFrame 单列数据
+## 使用访问字典方式取出orderInfo中的某一列
+order_id = detail['order_id']
+print('订单详情表中的order_id的形状为:','\n',order_id.shape)
+
+# 代码 16：使用访问属性的方式访问 DataFrame 单列数据
+## 使用访问属性方式取出orderInfo中的菜品名称列
+dishes_name = detail.dishes_name
+print('订单详情表中的dishes_name的形状为:',dishes_name.shape)
+
+# 代码 17：DataFrame 单列多行数据获取
+dishes_name5 = detail['dishes_name'][:5]
+print('订单详情表中的dishes_name前5个元素为：','\n',dishes_name5)
+
+# 代码 18：访问 DataFrame 多行的多列数据
+orderDish = detail[['order_id','dishes_name']][:5]
+print('订单详情表中的order_id和dishes_name前5个元素为：', '\n',orderDish)
+
+# 代码 19：访问 DataFrame 多行数据
+order5 = detail[:][1:6]
+print('订单详情表的1-6行元素为：','\n',order5)
+
+# 代码 20：使用 DataFrame 的 head 和 tail 方法获取多行数据
+print('订单详情表中前五行数据为','\n',detail.head())
+print('订单详情表中后五个元素为：','\n',detail.tail())
+
+# 代码 21：使用 loc & iloc 实现单列切片
+dishes_name1 = detail.loc[:,'dishes_name']
+print('使用loc提取dishes_name列的size为：', dishes_name1.size)
+dishes_name2 = detail.iloc[:,3]
+print('使用iloc提取第3列的size为：', dishes_name2.size)
+
+# 代码 22：使用 loc、iloc 实现多列切片
+orderDish1 = detail.loc[:,['order_id','dishes_name']]
+print('使用loc提取order_id和dishes_name列的size为：', orderDish1.size)
+orderDish2 = detail.iloc[:,[1,3]]
+print('使用iloc提取第1和第3列的size为：', orderDish2.size)
+
+# 代码 23
+print('列名为order_id和dishes_name的行名为3的数据为：\n', detail.loc[3,['order_id','dishes_name']])
+print('列名为order_id和dishes_name行名为2,3,4,5,6的数据为：\n', detail.loc[2:6,['order_id','dishes_name']])
+print('列位置为1和3行位置为3的数据为：\n',detail.iloc[3,[1,3]])
+print('列位置为1和3行位置为2,3,4,5,6的数据为：\n', detail.iloc[2:7,[1,3]])
+
+# 代码 24
+## loc内部传入表达式
+print('detail中order_id为458的dishes_name为：\n',
+     detail.loc[detail['order_id']=='458',
+     ['order_id','dishes_name']])
+print('detail中order_id为458的第1,5列数据为：\n',
+     detail.iloc[detail['order_id']=='458',[1,5]])
+
+# 代码 25：使用 loc 实现条件切片
+print('detail中order_id为458的第1,5列数据为：\n', detail.iloc[(detail['order_id']=='458').values,[1,5]])
+
+# 代码 26：使用 loc、iloc、ix 实现切片比较
+print('列名为dishes_name行名为2,3,4,5,6的数据为：\n', detail.loc[2:6,'dishes_name'])
+
+print('列位置为5,行位置为2至6的数据为：\n',detail.iloc[2:6,5])
+print('列位置为5行名为2至6的数据为：', '\n',detail.ix[2:6,5])
+
+
+# 代码 27：更改 DataFrame 中的数据
+##将order_id为458的，变换为45800
+detail.loc[detail['order_id']=='458','order_id'] = '45800'
+print('更改后detail中order_id为458的order_id为：\n',
+     detail.loc[detail['order_id']=='458','order_id'])
+print('更改后detail中order_id为45800的order_id为：\n',
+     detail.loc[detail['order_id']=='45800','order_id'])
+     
+# 代码 28：为 DataFrame 新增一列非定值
+detail['payment'] =  detail['counts']*detail['amounts']
+print('detail新增列payment的前五行为：','\n', detail['payment'].head())
+
+# 代码 29：DataFrame 新增一列定值
+detail['pay_way'] = '现金支付'
+print('detail新增列pay_way的前五行为：','\n', detail['pay_way'].head())
+
+# 代码 30：删除 DataFrame 某列
+print('删除pay_way前deatil的列索引为：','\n',detail.columns)
+detail.drop(labels = 'pay_way',axis = 1,inplace = True)
+print('删除pay_way后detail的列索引为：','\n',detail.columns)
+
+# 代码 31：删除 DataFrame 某几行
+print('删除1-10行前detail的长度为：',len(detail))
+detail.drop(labels = range(1,11),axis = 0,inplace = True)
+print('删除1-10行后detail的列索引为：',len(detail))
+
+# 代码 32：使用 np.mean 函数计算平均价格
+import numpy as np
+print('订单详情表中amount（价格）的平均值为：', np.mean(detail['amounts']))
+
+# 代码 33：通过 pandas 实现销量和价格的协方差矩阵计算
+print('订单详情表中amount（价格）的平均值为：', detail['amounts'].mean())
+
+# 代码 34：使用 describe 方法实现数据特征的描述性统计
+print('订单详情表counts和amounts两列的描述性统计为：\n', detail[['counts','amounts']].describe())
+
+# 代码 35：对菜品名称频数统计
+print('订单详情表dishes_name频数统计结果前10为：\n', detail['dishes_name'].value_counts()[0:10])
+      
+# 代码 36：将 object 数据强制转换为 catrgory 类型
+detail['dishes_name'] = detail['dishes_name'].astype('category')
+print('订单信息表dishes_name列转变数据类型后为：',detail['dishes_name'].dtypes)
+
+# 代码 37：category 类型特征的描述性统计
+print('订单信息表dishes_name的描述统计结果为：\n', detail['dishes_name'].describe())
+
+
+''' 案例：查看餐饮数据的基本信息（维度、形状、元素个数）、销售信息统计（菜品销量、平均售价、热销菜品）
+依据数据类类型分为数值型和类别类型
+'''
+# 代码 38：查看餐饮信息数据基本信息
+from sqlalchemy import create_engine
+import pandas as pd
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8')
+detail = pd.read_sql_table('meal_order_detail1',
+      con = engine)
+order = pd.read_table('../data/meal_order_info.csv',
+      sep = ',',encoding = 'gbk')
+user = pd.read_excel('../data/users.xlsx')
+print('订单详情表的维度为：', detail.ndim)
+print('订单信息表的维度为：', order.ndim)
+print('客户信息表的维度为：', user.ndim)
+print('订单详情表的形状为：', detail.shape)
+print('订单信息表的形状为：', order.shape)
+print('客户信息表的形状为：', user.shape)
+print('订单详情表的元素个数为：', detail.size)
+print('订单信息表的元素个数为：', order.size)
+print('客户信息表的元素个数为：', user.size)
+
+# 代码 39：餐饮菜品销量的描述性统计
+print('订单详情表counts和amounts两列的描述性统计为：\n', detail.loc[:, ['counts','amounts']].describe())
+detail['order_id'] = detail['order_id'].astype('category')
+detail['dishes_name'] = detail['dishes_name'].astype('category')
+print('''订单信息表order_id(订单编号)与dishes_name(菜品名称)
+的描述性统计结果为：''', '\n',
+detail[['order_id','dishes_name']].describe())
+
+# 代码 40：剔除餐饮菜品中整列为空或者取值完全相同的列
+## 定义一个函数去除全为空值的列和标准差为0的列
+def dropNullStd(data):
+    beforelen = data.shape[1]
+    colisNull = data.describe().loc['count'] == 0
+    for i in range(len(colisNull)):
+        if colisNull[i]:
+            data.drop(colisNull.index[i],axis = 1,inplace =True)
+
+    stdisZero = data.describe().loc['std'] == 0
+    for i in range(len(stdisZero)):
+        if stdisZero[i]:
+            data.drop(stdisZero.index[i],axis = 1,inplace =True)
+    afterlen = data.shape[1]
+    print('去除的列的数目为：',beforelen-afterlen)
+    print('去除后数据的形状为：',data.shape)
+dropNullStd(detail)
+##使用dropNullStd函数对订单信息表操作
+dropNullStd(order)
+##使用dropNullStd函数对客户信息表操作
+dropNullStd(user)
+
+## 任务3.3 转换与处理时间序列数据
+
+# 代码 41：转换字符串时间为标准时间
+import pandas as pd
+order = pd.read_table('../data/meal_order_info.csv',
+      sep = ',',encoding = 'gbk')
+print('进行转换前订单信息表lock_time的类型为：', 
+      order['lock_time'].dtypes)
+order['lock_time'] = pd.to_datetime(order['lock_time'])
+print('进行转换后订单信息表lock_time的类型为：', 
+      order['lock_time'].dtypes)
+
+# 代码 42：Timestamp 的最小时间和最大时间
+print('最小时间为：', pd.Timestamp.min)
+print('最大时间为：', pd.Timestamp.max)
+
+# 代码 43：时间字符串转换为 DataIndex 和 PeriodIndex
+dateIndex = pd.DatetimeIndex(order['lock_time'])
+print('转换为DatetimeIndex后数据的类型为：\n',type(dateIndex))
+periodIndex = pd.PeriodIndex(order['lock_time'],freq = 'S')
+print('转换为DatetimeIndex后数据的类型为：\n',type(periodIndex))
+
+# 代码 44：提取datetime 数据中时间序列数据
+year1 = [i.year for i in order['lock_time']]
+print('lock_time中的年份数据前5个为：',year1[:5])
+month1 = [i.month for i in order['lock_time']]
+print('lock_time中的月份数据前5个为：',month1[:5])
+day1 = [i.day for i in order['lock_time']]
+print('lock_time中的日期数据前5个为：',day1[:5])
+weekday1 = [i.weekday_name for i in order['lock_time']]
+print('lock_time中的星期名称数据前5个为：',weekday1[:5])
+
+# 代码 45：提取 DateIndex 和 PeriodIndex 中的数据
+print('dateIndex中的星期名称数据前5个为：\n', dateIndex.weekday_name[:5])
+print('periodIndex中的星期标号数据前5个为：', periodIndex.weekday[:5])
+
+# 代码 46：使用 Timedelta 实现时间数据的加运算
+## 将lock_time数据向后平移一天
+time1 = order['lock_time']+pd.Timedelta(days = 1) 
+print('lock_time在加上一天前前5行数据为：\n',order['lock_time'][:5])
+print('lock_time在加上一天前前5行数据为：\n',time1[:5])
+
+# 代码 47：使用 Timedelta 实现时间数据的减运算
+timeDelta = order['lock_time'] - pd.to_datetime('2017-1-1')
+print('lock_time减去2017年1月1日0点0时0分后的数据：\n', timeDelta[:5])
+print('lock_time减去time1后的数据类型为：',timeDelta.dtypes)
+
+### 案例
+'''
+# 订单信息表存在两个时间特征，user_start_time(点单时间),lock_time(结算时间)
+# 转换为标准时间格式、提取其中任一特征的时间信息
+# 求取最早和最晚的差值计算订单跨度
+'''
+##
+# 代码 48：订单信息表时间数据转换
+import pandas as pd
+order = pd.read_table('../data/meal_order_info.csv', sep = ',',encoding = 'gbk')
+order['use_start_time'] = pd.to_datetime(order['use_start_time'])
+order['lock_time'] = pd.to_datetime(order['lock_time'])
+print('进行转换后订单信息表use_start_time和lock_time的类型为：\n', order[['use_start_time','lock_time']].dtypes)
+
+# 代码 49：订单信息表时间信息提取
+year = [i.year for i in order['lock_time']]## 提取年份信息
+month = [i.month for i in order['lock_time']]## 提取月份信息
+day = [i.day for i in  order['lock_time']]## 提取日期信息
+week = [i.week for i in  order['lock_time']]## 提取周信息
+weekday = [i.weekday() for i in  order['lock_time']]##提取星期信息
+## 提取星期名称信息
+weekname = [i.weekday_name for i in  order['lock_time']]
+print('订单详情表中的前5条数据的年份信息为：',year[:5])
+print('订单详情表中的前5条数据的月份信息为：',month[:5])
+print('订单详情表中的前5条数据的日期信息为：',day[:5])
+print('订单详情表中的前5条数据的周信息为：',week[:5])
+print('订单详情表中的前5条数据的星期信息为：',weekday[:5])
+print('订单详情表中的前5条数据的星期名称信息为：',weekname[:5])
+
+# 代码 50：查看订单信息表时间统计信息
+timemin = order['lock_time'].min()
+timemax = order['lock_time'].max()
+print('订单最早的时间为：',timemin)
+print('订单最晚的时间为：',timemax)
+print('订单持续的时间为：',timemax-timemin)
+chekTime = order['lock_time'] - order['use_start_time']
+print('平均点餐时间为：',chekTime.mean())
+print('最小点餐时间为：',chekTime.min())
+print('最大点餐时间为：',chekTime.max())
+
+
+## 任务3.4  使用分组聚合进行组内计算
+
+# 代码 51：对菜品订单详情依据订单编号分组
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=gbk')
+detail = pd.read_sql_table('meal_order_detail1',con = engine)
+detailGroup = detail[['order_id','counts',
+      'amounts']].groupby(by = 'order_id')
+print('分组后的订单详情表为：',detailGroup)
+
+# 代码 52：Groupby 类求平均值、标准差、中位数
+print('订单详情表分组后前5组每组的均值为：\n', 
+      detailGroup.mean().head())
+print('订单详情表分组后前5组每组的标准差为：\n', 
+      detailGroup.std().head())
+print('订单详情表分组后前5组每组的大小为：','\n', 
+      detailGroup.size().head())
+
+# 代码 53：使用 agg 求出当前数据对应的统计值
+print('订单详情表的菜品销量与售价的和与均值为：\n',
+      detail[['counts','amounts']].agg([np.sum,np.mean]))
+
+# 代码 54：使用 agg 分别求字段的不同统计量
+print('订单详情表的菜品销量总和与售价的均值为：\n',
+      detail.agg({'counts':np.sum,'amounts':np.mean}))
+
+# 代码 55：使用 agg 方法求不同字段的不同数目统计量
+print('菜品订单详情表的菜品销量总和与售价的总和与均值为：\n',
+      detail.agg({'counts':np.sum,'amounts':[np.mean,np.sum]}))
+
+# 代码 56：在 agg 方法中使用自定义函数
+##自定义函数求两倍的和
+def DoubleSum(data):
+    s = data.sum()*2
+    return s
+print('菜品订单详情表的菜品销量两倍总和为：','\n', detail.agg({'counts':DoubleSum},axis = 0))
+      
+# 代码 57：agg 方法中使用的自定义函数含 NumPy 中的函数
+##自定义函数求两倍的和
+def DoubleSum1(data):
+    s = np.sum(data)*2
+    return s
+print('订单详情表的菜品销量两倍总和为：\n',
+      detail.agg({'counts':DoubleSum1},axis = 0).head())
+print('订单详情表的菜品销量与售价的和的两倍为：\n',
+      detail[['counts','amounts']].agg(DoubleSum1))
+
+# 代码 58：使用 agg 方法做简单的聚合
+print('订单详情表分组后前3组每组的均值为：\n', 
+      detailGroup.agg(np.mean).head(3))
+print('订单详情表分组后前3组每组的标准差为：\n', 
+      detailGroup.agg(np.std).head(3))
+
+# 代码 59：使用 agg 方法对分组数据使用不同的聚合函数
+print('订单详情分组前3组每组菜品总数和售价均值为：\n', 
+      detailGroup.agg({'counts':np.sum,
+            'amounts':np.mean}).head(3))
+
+# 代码 60：apply 方法的基本用法
+print('订单详情表的菜品销量与售价的均值为：\n',
+      detail[['counts','amounts']].apply(np.mean))
+
+# 代码 61：使用 apply 方法进行聚合操作
+print('订单详情表分组后前3组每组的均值为：','\n', detailGroup.apply(np.mean).head(3))
+print('订单详情表分组后前3组每组的标准差为：','\n', detailGroup.apply(np.std).head(3))
+
+# 代码 62：使用 transform 方法将销量和售价翻倍
+print('订单详情表的菜品销量与售价的两倍为：\n',
+      detail[['counts','amounts']].transform(
+            lambda x:x*2).head(4))
+
+# 代码 63：使用 transform 实现组内离差标准化
+print('订单详情表分组后实现组内离差标准化后前五行为：\n', 
+      detailGroup.transform(lambda x:(x.mean()
+            -x.min())/(x.max()-x.min())).head())
+
+'''
+## 案例 按照时间对菜品订单详情表进行拆分
+# 每天的数据放在一组、聚合计算每组销售均价&中位数、计算单日总共销售菜品数目
+'''
+# 代码 64：订单详情按照日期分组
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@root:3306/testdb?charset=utf8')
+detail = pd.read_sql_table('meal_order_detail1',con = engine)
+detail['place_order_time'] = pd.to_datetime(
+       detail['place_order_time'])
+detail['date'] = [i.date() for i in detail['place_order_time']]
+detailGroup = detail[['date','counts','amounts']].groupby(by='date')
+print('订单详情表前5组每组的数目为：\n',detailGroup.size().head())
+
+# 代码 65：求分组后订单详情表每日菜品销售的均价、中位数
+dayMean = detailGroup.agg({'amounts':np.mean})
+print('订单详情表前五组每日菜品均价为：\n',dayMean.head())
+dayMedian = detailGroup.agg({'amounts':np.median})
+print('订单详情表前五组每日菜品售价中位数为：\n',dayMedian.head())
+
+# 代码 66：求取订单详细表大日菜品总销量
+daySaleSum = detailGroup.apply(np.sum)['counts']
+print('订单详情表前五组每日菜品售出数目为：\n',daySaleSum.head())
+
+## 任务3.5 透视表与交叉表
+
+# 代码 67：使用订单号作为透视表索引制作透视表
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8')
+detail = pd.read_sql_table('meal_order_detail1',
+      con = engine)
+detailPivot = pd.pivot_table(detail[[
+      'order_id','counts','amounts']],
+      index = 'order_id')
+print('以order_id作为分组键创建的订单透视表为：\n',
+       detailPivot.head())
+
+# 代码 68：修改聚合函数后的透视表
+detailPivot1 = pd.pivot_table(detail[[
+      'order_id','counts','amounts']],
+      index = 'order_id',aggfunc = np.sum)
+print('以order_id作为分组键创建的订单销量与售价总和透视表为：\n',
+       detailPivot1.head())
+
+# 代码 69：使用订单号和菜品名作为索引的透视表
+detailPivot2 = pd.pivot_table(detail[[
+      'order_id','dishes_name',
+      'counts','amounts']],
+      index = ['order_id','dishes_name'],
+      aggfunc = np.sum)
+print('以order_id和dishes_name作为分组键创建的订单\
+销量与售价总和透视表为：\n',detailPivot2.head())
+
+# 代码 70：指定菜品名称为列分组键的透视表
+detailPivot2 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',
+      columns = 'dishes_name',
+      aggfunc = np.sum)
+print('以order_id和dishes_name作为行列分组键创建的\
+透视表前5行4列为：\n',detailPivot2.iloc[:5,:4])
+
+# 代码 71：指定某些列制作透视表
+detailPivot4 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',
+      values = 'counts',
+      aggfunc = np.sum)
+print('以order_id作为行分组键counts作为值创建的\
+透视表前5行为：\n',detailPivot4.head())
+
+# 代码 72：对透视表中的缺失值进行填充
+detailPivot5 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',
+      columns = 'dishes_name',
+      aggfunc = np.sum,fill_value = 0)
+print('空值填0后以order_id和dishes_name为行列分组键\
+创建透视表前5行4列为：\n',detailPivot5.iloc[:5,:4])
+
+# 代码 73：在透视表中添加汇总数据
+detailPivot6 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',columns = 'dishes_name',
+      aggfunc = np.sum,fill_value = 0,
+      margins = True)
+print('添加margins后以order_id和dishes_name为分组键\
+的透视表前5行后4列为：\n',detailPivot6.iloc[:5,-4:])
+
+# 代码 74：使用 crosstab 函数制作交叉表
+detailCross = pd.crosstab(
+      index=detail['order_id'],
+      columns=detail['dishes_name'],
+      values = detail['counts'],aggfunc = np.sum)
+print('以order_id和dishes_name为分组键\
+counts为值的透视表前5行5列为：\n',detailCross.iloc[:5,:5])
+
+## 案例 单日菜品成交总额与总数均价透视表、单个菜品单日成交总额透视表
+# 代码 75：订单详情表单日菜品成交总额与总数透视表
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8')
+detail = pd.read_sql_table('meal_order_detail1',con = engine)
+detail['place_order_time'] = pd.to_datetime(
+      detail['place_order_time'])
+detail['date'] = [i.date() for i in detail['place_order_time']]
+PivotDetail = pd.pivot_table(detail[[
+      'date','dishes_name','counts','amounts']],
+      index ='date',aggfunc = np.sum,
+      margins = True)
+print('订单详情表单日菜品成交总额与总数透视表前5行5列为：\n',
+      PivotDetail.head())
+
+# 代码 76：订单详情表单个菜品单日成交总额透视表
+CrossDetail = pd.crosstab(
+      index=detail['date'],columns=detail['dishes_name'],
+      values = detail['amounts'],
+      aggfunc = np.sum,margins = True)
+print('订单详情表单日单个菜品成交总额交叉表后5行5列为：\n',
+      CrossDetail.iloc[-5:,-5:])
+

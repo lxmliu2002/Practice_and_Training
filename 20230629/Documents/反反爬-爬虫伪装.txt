@@ -1,0 +1,27 @@
+爬虫伪装的用代码模拟人的真实操作, 能够提高爬虫的成功率。
+
+1.浏览器伪装
+    加入“User-Agent”信息伪装成真实浏览器
+
+2.访问地址伪装
+    访问地址指的是headers头部中的referer信息, 可以防盗链(比如只允许自身网站访问自己的图片)
+    加入 referer 信息伪装访问地址
+
+3.ip地址伪装
+    反爬虫检测到某个IP的访问次数很多，或者是访问的频率很快，就会封禁这个IP。
+    proxies={'https':'101.236.54.97:8866'} 
+    response = requests.get(url,headers=headers，proxies=proxies)
+    免费： 边检测边使用，保证免费IP时效性
+        https://zhuanlan.zhihu.com/p/112166035
+    可花钱买一些稳定的代理
+
+4.伪装访问速率
+    随机设置访问时间
+    time.sleep(random.uniform(2.1,5.5))
+
+5.伪装用户真实信息
+    加入cookie值避免重复
+    response = requests.get(url,headers=headers, cookies=cookies)
+
+6.Selenium
+    完美解决反爬，缺点：速度慢、效率低、资源占用

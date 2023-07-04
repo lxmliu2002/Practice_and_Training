@@ -1,0 +1,206 @@
+﻿# -*- coding: utf-8 -*-
+
+## 任务3.4  使用分组聚合进行组内计算
+
+# 代码 3-51：对菜品订单详情依据订单编号分组
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=gbk')
+detail = pd.read_sql_table('meal_order_detail1',con = engine)
+detailGroup = detail[['order_id','counts',
+      'amounts']].groupby(by = 'order_id')
+print('分组后的订单详情表为：',detailGroup)
+
+# 代码 3-52：Groupby 类求平均值、标准差、中位数
+print('订单详情表分组后前5组每组的均值为：\n', 
+      detailGroup.mean().head())
+print('订单详情表分组后前5组每组的标准差为：\n', 
+      detailGroup.std().head())
+print('订单详情表分组后前5组每组的大小为：','\n', 
+      detailGroup.size().head())
+
+# 代码 3-53：使用 agg 求出当前数据对应的统计值
+print('订单详情表的菜品销量与售价的和与均值为：\n',
+      detail[['counts','amounts']].agg([np.sum,np.mean]))
+
+# 代码 3-54：使用 agg 分别求字段的不同统计量
+print('订单详情表的菜品销量总和与售价的均值为：\n',
+      detail.agg({'counts':np.sum,'amounts':np.mean}))
+
+# 代码 3-55：使用 agg 方法求不同字段的不同数目统计量
+print('菜品订单详情表的菜品销量总和与售价的总和与均值为：\n',
+      detail.agg({'counts':np.sum,'amounts':[np.mean,np.sum]}))
+
+# 代码 3-56：在 agg 方法中使用自定义函数
+##自定义函数求两倍的和
+def DoubleSum(data):
+    s = data.sum()*2
+    return s
+print('菜品订单详情表的菜品销量两倍总和为：','\n', detail.agg({'counts':DoubleSum},axis = 0))
+      
+# 代码 3-57：agg 方法中使用的自定义函数含 NumPy 中的函数
+##自定义函数求两倍的和
+def DoubleSum1(data):
+    s = np.sum(data)*2
+    return s
+print('订单详情表的菜品销量两倍总和为：\n',
+      detail.agg({'counts':DoubleSum1},axis = 0).head())
+print('订单详情表的菜品销量与售价的和的两倍为：\n',
+      detail[['counts','amounts']].agg(DoubleSum1))
+
+# 代码 3-58：使用 agg 方法做简单的聚合
+print('订单详情表分组后前3组每组的均值为：\n', 
+      detailGroup.agg(np.mean).head(3))
+print('订单详情表分组后前3组每组的标准差为：\n', 
+      detailGroup.agg(np.std).head(3))
+
+# 代码 3-59：使用 agg 方法对分组数据使用不同的聚合函数
+print('订单详情分组前3组每组菜品总数和售价均值为：\n', 
+      detailGroup.agg({'counts':np.sum,
+            'amounts':np.mean}).head(3))
+
+# 代码 3-60：apply 方法的基本用法
+print('订单详情表的菜品销量与售价的均值为：\n',
+      detail[['counts','amounts']].apply(np.mean))
+
+# 代码 3-61：使用 apply 方法进行聚合操作
+print('订单详情表分组后前3组每组的均值为：','\n', detailGroup.apply(np.mean).head(3))
+print('订单详情表分组后前3组每组的标准差为：','\n', detailGroup.apply(np.std).head(3))
+
+# 代码 3-62：使用 transform 方法将销量和售价翻倍
+print('订单详情表的菜品销量与售价的两倍为：\n',
+      detail[['counts','amounts']].transform(
+            lambda x:x*2).head(4))
+
+# 代码 3-63：使用 transform 实现组内离差标准化
+print('订单详情表分组后实现组内离差标准化后前五行为：\n', 
+      detailGroup.transform(lambda x:(x.mean()
+            -x.min())/(x.max()-x.min())).head())
+
+'''
+## 案例 按照时间对菜品订单详情表进行拆分
+# 每天的数据放在一组、聚合计算每组销售均价&中位数、计算单日总共销售菜品数目
+'''
+# 代码 3-64：订单详情按照日期分组
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@root:3306/testdb?charset=utf8')
+detail = pd.read_sql_table('meal_order_detail1',con = engine)
+detail['place_order_time'] = pd.to_datetime(
+       detail['place_order_time'])
+detail['date'] = [i.date() for i in detail['place_order_time']]
+detailGroup = detail[['date','counts','amounts']].groupby(by='date')
+print('订单详情表前5组每组的数目为：\n',detailGroup.size().head())
+
+# 代码 3-65：求分组后订单详情表每日菜品销售的均价、中位数
+dayMean = detailGroup.agg({'amounts':np.mean})
+print('订单详情表前五组每日菜品均价为：\n',dayMean.head())
+dayMedian = detailGroup.agg({'amounts':np.median})
+print('订单详情表前五组每日菜品售价中位数为：\n',dayMedian.head())
+
+# 代码 3-66：求取订单详细表大日菜品总销量
+daySaleSum = detailGroup.apply(np.sum)['counts']
+print('订单详情表前五组每日菜品售出数目为：\n',daySaleSum.head())
+
+## 任务3.5 透视表与交叉表
+
+# 代码 3-67：使用订单号作为透视表索引制作透视表
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8')
+detail = pd.read_sql_table('meal_order_detail1',
+      con = engine)
+detailPivot = pd.pivot_table(detail[[
+      'order_id','counts','amounts']],
+      index = 'order_id')
+print('以order_id作为分组键创建的订单透视表为：\n',
+       detailPivot.head())
+
+# 代码 3-68：修改聚合函数后的透视表
+detailPivot1 = pd.pivot_table(detail[[
+      'order_id','counts','amounts']],
+      index = 'order_id',aggfunc = np.sum)
+print('以order_id作为分组键创建的订单销量与售价总和透视表为：\n',
+       detailPivot1.head())
+
+# 代码 3-69：使用订单号和菜品名作为索引的透视表
+detailPivot2 = pd.pivot_table(detail[[
+      'order_id','dishes_name',
+      'counts','amounts']],
+      index = ['order_id','dishes_name'],
+      aggfunc = np.sum)
+print('以order_id和dishes_name作为分组键创建的订单\
+销量与售价总和透视表为：\n',detailPivot2.head())
+
+# 代码 3-70：指定菜品名称为列分组键的透视表
+detailPivot2 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',
+      columns = 'dishes_name',
+      aggfunc = np.sum)
+print('以order_id和dishes_name作为行列分组键创建的\
+透视表前5行4列为：\n',detailPivot2.iloc[:5,:4])
+
+# 代码 3-71：指定某些列制作透视表
+detailPivot4 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',
+      values = 'counts',
+      aggfunc = np.sum)
+print('以order_id作为行分组键counts作为值创建的\
+透视表前5行为：\n',detailPivot4.head())
+
+# 代码 3-72：对透视表中的缺失值进行填充
+detailPivot5 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',
+      columns = 'dishes_name',
+      aggfunc = np.sum,fill_value = 0)
+print('空值填0后以order_id和dishes_name为行列分组键\
+创建透视表前5行4列为：\n',detailPivot5.iloc[:5,:4])
+
+# 代码 3-73：在透视表中添加汇总数据
+detailPivot6 = pd.pivot_table(detail[[
+      'order_id','dishes_name','counts','amounts']],
+      index = 'order_id',columns = 'dishes_name',
+      aggfunc = np.sum,fill_value = 0,
+      margins = True)
+print('添加margins后以order_id和dishes_name为分组键\
+的透视表前5行后4列为：\n',detailPivot6.iloc[:5,-4:])
+
+# 代码 3-74：使用 crosstab 函数制作交叉表
+detailCross = pd.crosstab(
+      index=detail['order_id'],
+      columns=detail['dishes_name'],
+      values = detail['counts'],aggfunc = np.sum)
+print('以order_id和dishes_name为分组键\
+counts为值的透视表前5行5列为：\n',detailCross.iloc[:5,:5])
+
+## 案例 单日菜品成交总额与总数均价透视表、单个菜品单日成交总额透视表
+# 代码 3-75：订单详情表单日菜品成交总额与总数透视表
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+engine = create_engine('mysql+pymysql://root:root@127.0.0.1:3306/testdb?charset=utf8')
+detail = pd.read_sql_table('meal_order_detail1',con = engine)
+detail['place_order_time'] = pd.to_datetime(
+      detail['place_order_time'])
+detail['date'] = [i.date() for i in detail['place_order_time']]
+PivotDetail = pd.pivot_table(detail[[
+      'date','dishes_name','counts','amounts']],
+      index ='date',aggfunc = np.sum,
+      margins = True)
+print('订单详情表单日菜品成交总额与总数透视表前5行5列为：\n',
+      PivotDetail.head())
+
+# 代码 3-76：订单详情表单个菜品单日成交总额透视表
+CrossDetail = pd.crosstab(
+      index=detail['date'],columns=detail['dishes_name'],
+      values = detail['amounts'],
+      aggfunc = np.sum,margins = True)
+print('订单详情表单日单个菜品成交总额交叉表后5行5列为：\n',
+      CrossDetail.iloc[-5:,-5:])
+

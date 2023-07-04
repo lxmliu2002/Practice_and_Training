@@ -1,0 +1,247 @@
+1. 安装 scrapy
+    pip install scrapy 
+
+2. 创建 scrapy 爬虫项目
+    0. 命令语法
+        scrapy -h
+        scrapy startproject -h
+    1. 创建项目 
+        语法：
+            scrapy startproject <project_name> [project_dir]
+            scrapy startproject 项目名称 项目所在的目录
+        命令： 
+            scrapy startproject film250 doubanmovie
+    2. 创建爬虫（基于scrapy爬虫模板类）
+        cd doubanmovie
+        scrapy genspider filmspider douban.com
+
+
+3. 开始填空
+    0. 在 PyCharm 中打开项目film250所在的项目目录 doubanmovie
+    1. itmes.py
+        # 导入所需 scrapy 模块
+        import scrapy
+        # 导入所需 item 包中的 Item,Field 类
+        from scrapy.item import Item, Field
+
+        # 封装数据项
+        # 完成爬取数据中的数据某一部分的命名
+        class Film250Item(scrapy.Item):
+            # define the fields for your item here like:
+            # name = scrapy.Field()
+            film_name = Field()
+            film_score = Field()
+            film_introduction = Field()
+            pass
+
+    2. spiders/filmspider.py 
+        # 导入所需 scrapy 模块
+        import scrapy
+        # 导入要放置数据项的 items 中的类
+        from film250.items import Film250Item
+
+        class FilmspiderSpider(scrapy.Spider):
+            # 必写属性1： 爬虫名称
+            name = 'filmspider'
+            allowed_domains = ['douban.com']
+            # 必写属性2：待爬取的url list，
+            # 可在在后去爬取过程中，获取后续待爬取的url，发送请求（关键方法）
+            # 也可以在此处，一次性的将待爬取的所有的url一次性的生成
+            start_urls = [
+                'https://movie.douban.com/top250?start={}'.format(str(i)) for i in range(0, 250, 25)
+            ]
+            # start_urls = [
+            #     'https://movie.douban.com/top250?start=0'
+            # ]
+            '''
+            # 属性3，可选，给出 request_headers == user-agent
+            # 可以在本处完成说明、settings.py中、downloadermiddleware 中
+            headers = {
+                'User-Agent' :
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                    'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    'Chrome/101.0.4951.41 Safari/537.36 Edg/101.0.1210.32'
+            }
+            '''
+
+            # 必写两方法（方法中要实现两个功能，按需书写），覆盖重写。
+            # 不需要完成后续url的获取和发送请求，只需要完成抓取的数据的放入 item 中
+            def parse(self, response):
+                # 新建 Item 实例对象
+                doubanmovie_item = Film250Item()
+                # 开始爬取
+                # 1- 使用 css selector 进行解析
+                css_selector = response.css
+                # 第一个功能：抓取页面中数据，并封装到数据项中
+                # 2- 遍历每一个包含电影信息的 div
+                for item in css_selector('div.item'):
+                    # 获取所需爬取的数据
+                    film_name = item.css('div.info > div.hd > a > span.title::text').extract_first();
+                    film_score = item.css('div.info div.bd div.star span.rating_num::text').extract();
+                    film_instroduction = item.css('div.info div.bd p.quote span.inq::text').extract();
+                    # 将爬取数据的组成部分，某些数据项放入 item 中
+                    doubanmovie_item['film_name'] = film_name
+                    doubanmovie_item['film_score'] = film_score
+                    doubanmovie_item['film_introduction'] = film_instroduction
+                    # 将 item 交给 scrapy 框架处理 -- 借助异步方式
+                    yield doubanmovie_item
+                # 第二个功能：抓取页面中待爬取的后续其他url，并提交到 scrapy 的请求列表中，由 scrapy 的 scheduler 处理
+                # scrapy scheduler 有 url 去重功能
+                # 注意：如果在前面的 start_urls 列表中具有全部待爬取的 url，此功能可以不写
+                # 3- 获取页面中后续url，并提交到 scrapy 的 request 列表中
+                # 获取页面的 '后页' 超链元素的值
+                next_url = response.css('div.paginator > span.next > a::attr(href)').extract()
+                # 判断 '后页' 是否为空（最后一页时，'后页'链接值为空）
+                if next_url:
+                    # 页面中 后页 的值为：?start=xx&filter= 的形式
+                    # 需要去除 &filter= 的部分，然后拼接为真是的下一页的url
+                    # 去除 &filter= 的部分，目的是为了保证和 start_urls 中的链接值一致，才可以实现 scrapy scheduler 去重
+                    # 获取 后页 链接中的 & 字符的位置
+                    and_pos = next_url[0].index('&')
+                    # 使用切片功能，获取 ?start=xx 的值
+                    next_url_in_page = next_url[0][0:and_pos]
+                    print(next_url_in_page)
+                    # 拼接生成真实的后页 url
+                    real_next_url = "http://movie.douban.com/top250" + next_url_in_page
+                    print(real_next_url)
+                    # 将获取的真实后页url异步提交到request请求的url列表中
+                    # 如果当前程序设置了headers，就提供headers参数
+                    # yield scrapy.Request(url=real_next_url, headers=self.headers)
+                    yield scrapy.Request(url=real_next_url)
+                    # 设置使用代理，也可以在 middlewares.py 中设置
+                    '''
+                    在 此处设置并使用 代理
+                    proxy = "http://180.175.2.68:8060"
+                    yield scrapy.Request(url=real_next_url, meta={"proxy": proxy})
+                    '''
+                pass
+
+            # 方法：可选方法
+            # 如果 start_urls 中含有待爬取的所有的url列表，此方法可以不写
+            # 即使写了，可以借助 scrapy scheduler 的去重功能完成 url 去重
+            def start_requests(self):
+                # 遍历所有待爬取的 urls list ==start_urls，逐个发出请求
+                # scrapy 有url去重功能
+                for url in self.start_urls:
+                    # 给出3个参数 url\headres\处理获取响应的回调函数名称
+                    # yield scrapy.Request(url=url, headers=self.headers, callback=self.parse)
+                    # 如果当前类中没有设置 请求头参数，则不同提供headers参数
+                    yield scrapy.Request(url=url, callback=self.parse)
+                    # 设置使用代理，也可以在 middlewares.py 中设置
+                    '''
+                    在 此处设置并使用 代理
+                    proxy = "http://180.175.2.68:8060"
+                    yield scrapy.Request(url=url, meta={"proxy": proxy})
+                    '''
+                pass
+
+    3. pipelines.py 
+        # 导入所需模块
+        from itemadapter import ItemAdapter
+        # 导入 csv 模块
+        import csv
+
+
+        class Film250Pipeline:
+            # 在当前类被调用的时候，最初执行并仅执行一次，进行初始化
+            def __init__(self):
+                # 打开指定文件
+                csv_fp = open('film250.csv', 'w', encoding='gb18030', newline='')
+                # 获取 csv 文件的写指针
+                csv_writer = csv.writer(csv_fp)
+                # 向 csv 文件中写入一行表头
+                # csv 文件中的一行，是要给 tuple 类型，要用 () 括起来
+                csv_writer.writerow(('name', 'score', 'introduction'))
+                # 暂存 csv 文件的写指针
+                self.post = csv_writer
+
+            # 处理传过来的一个item(doubanmovieitem)，
+            def process_item(self, item, spider):
+                # 获取暂存的 csv 文件的写指针
+                csv_writer = self.post
+                # 逐一向 csv 文件中写入每一个数据项
+                csv_writer.writerow((item['film_name'], item['film_score'], item['film_introduction']))
+                return item
+
+    4. settings.py
+      --确认：（需要保证和当前项目中组件同名）
+        BOT_NAME = 'film250'
+
+        SPIDER_MODULES = ['film250.spiders']
+        NEWSPIDER_MODULE = 'film250.spiders'
+      --修改：
+        ==1. 设置&织入 piplines，（注意需要和当前项目中组件同名）
+        # Configure item pipelines
+        # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+        #ITEM_PIPELINES = {
+        #    'film250.pipelines.Film250Pipeline': 300,
+        #}
+        # 通过项目名称.管道组件文件的名称.项目管道类名 : 表示执行顺序优先级的数字(0->1000)
+        ITEM_PIPELINES = {
+            'film250.pipelines.Film250Pipeline': 300,
+        }
+        ==2. 设置反爬：指定不遵从 robot.txt 规则
+        # Obey robots.txt rules
+        #ROBOTSTXT_OBEY = True
+        # 指定不遵守 robots.txt 文件中的规则
+        ROBOTSTXT_OBEY = False
+        ==3. 设置反爬：可选设置 user-agent
+        # Crawl responsibly by identifying yourself (and your website) on the user-agent
+        # 可以在此处指定user-agent
+        #USER_AGENT = 'doubanmovie (+http://www.yourdomain.com)'
+        USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.41 Safari/537.36 Edg/101.0.1210.32'
+        ==4. 设置反爬：启用 Cookies
+        # Disable cookies (enabled by default)
+        # 启用 cookies，可以不用设置，因为默认是启用的
+        #COOKIES_ENABLED = False
+        COOKIES_ENABLED = True
+        ==5. 设置反爬：提供请求头，包含 cookies 
+        # Override the default request headers:
+        # 此处可以设置 请求头参数
+        #DEFAULT_REQUEST_HEADERS = {
+        #   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        #   'Accept-Language': 'en',
+        #}
+        # 设置请求头
+        DEFAULT_REQUEST_HEADERS = {
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+          'Cookie': 'douban-fav-remind=1; gr_user_id=c1889e31-ba3c-4cd8-a33c-cd8c1d0a9759; Hm_lpvt_19fc7b106453f97b6a84d64302f21a04=1654860713; ucf_uid=2a534f68-80dc-470a-8759-e5eac3b76675; Hm_lvt_16a14f3002af32bf3a75dfe352478639=1665820504; Hm_lpvt_16a14f3002af32bf3a75dfe352478639=1665820504; _ga=GA1.1.62673610.1666426103; _ga_RXNMP372GL=GS1.1.1666426103.1.0.1666426108.55.0.0; ll="108289"; bid=JEdt3gC9VRY; __yadk_uid=sV31V7SlI4f5txy1XaCmVf9QZzFezKAE; _pk_id.100001.4cf6=1b2587345817fef5.1688010127.; ct=y; viewed="1008357_1212893_33658616_2035179_1209899_3162991_1449352_33435472_1007305_2080599"; dbcl2="48860155:NZp7mlyQYnw"; ck=bSYg; push_noty_num=0; push_doumail_num=0; ap_v=0,6.0; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1688160626%2C%22https%3A%2F%2Faccounts.douban.com%2F%22%5D; _pk_ses.100001.4cf6=1',
+          'Referer': 'https://www.douban.com',
+        }
+        ==6. 设置反爬：设置下载延迟
+        # Configure a delay for requests for the same website (default: 0)
+        # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
+        # See also autothrottle settings and docs
+        #DOWNLOAD_DELAY = 3
+        # 设置每次访问之间延时2秒，但不能动态改变，由于时间间隔固定，容易被发现，导致ip被封
+        DOWNLOAD_DELAY = 2
+        # 建议还是在代码中设置延迟 ==time.sleep 或者叠加使用以下配置
+        # 启用后，当从相同的网站获取数据时，Scrapy将会等待一个随机的值，延迟时间为0.5到1.5之间的一个随机值乘以DOWNLOAD_DELAY
+        RANDOMIZE_DOWNLOAD_DELAY = True
+        ==4. 其他
+        可以设置 代理
+            scrapy 设置并使用代理，有两种方法：在 spider 程序中，借助中间件并织入配置，具体请参看：
+            1. filmspider.py 程序中的相关注释
+            2. middlewares.py 和 settings.py 的相关注释
+
+    5. main.py --运行此程序完成功能
+        # 导入 cmdline
+        from scrapy import cmdline
+
+        # 执行如下命令，运行 scrapy 爬虫(爬虫的名称必须和当前项目的爬虫名称一致)
+        # 对应命令行命令： scrapy crawl filmspider
+        # cmdline.execute(['scrapy', 'crawl', 'filmspider'])
+        # 或者：
+        # cmdline.execute('scrapy crawl filmspider'.split())
+
+        # 执行如下命令，运行 scrapy 爬虫，同时将数据借助 -o 参数输出到指定的 csv 文件中
+        # 对应命令行命令： scrapy crawl filmspider -o doubanfilm.csv
+        cmd_param = "filmspider -o doubanfilm.csv"
+        cmd_line_str = "scrapy crawl {0}".format(cmd_param)
+        cmdline.execute(cmd_line_str.split())
+        # 或者：
+        # cmdline.execute(['scrapy', 'crawl', 'filmspider', '-o', 'doubanfilm.csv'])
+
+
+

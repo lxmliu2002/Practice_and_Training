@@ -1,0 +1,104 @@
+Jupyter Notebook & Jupyter lab
+0. Python 虚拟环境安装&配置
+    0. why
+    1. install 
+        1. 安装虚拟环境支撑库: 
+            pip install virtualenv
+        2. 创建虚拟环境: 
+            如，在 c:\Dev\Python\myenv 目录下执行：
+                virtualenv venv　　#venv为自定义的虚拟环境目录名
+            在指定包含虚拟环境文件夹的父目录下执行上面的命令
+            在当前的目录中创建一个文件夹，包含了Python可执行文件，以及现有 pip 库的一份拷贝。
+            虚拟环境的名字（如上是 venv ）可以是任意的；若省略名字将会把文件均放在当前目录。
+    2. activate & deactivate
+        激活：venv/Scripts/activate.bat 
+        退出：venv/Scripts/deactivate.bat
+  -- Anaconda 也有虚拟环境的概念。
+1. why 
+    https://baike.baidu.com/item/Jupyter/20423051?fr=aladdin
+    https://www.jianshu.com/p/91365f343585/
+    https://zhuanlan.zhihu.com/p/33105153
+    https://www.zhihu.com/question/46309360/answer/829292227
+    : 数据分析&AI算法验证，教学&验证
+    -- Jupyter notebook == IPython notebook
+    教程：
+        https://jupyter-notebook.readthedocs.io/en/stable/
+        https://zhuanlan.zhihu.com/p/36858283
+-- Jupyter notebook
+2. insatll 
+    在 Anaconda 中内置、在 Python 官方语言环境（基础、虚拟）分别安装。
+    定位：在Python的虚拟环境中安装！！
+    step: 
+        0 - 进入虚拟环境
+        1 - 安装 Jupyper notebook 
+            pip install jupyter 
+3. validate 
+    jupyter --version 
+    启动 Jupyter notebook 
+    jupyter notebook
+        ： 在当前系统的默认浏览器（Edge）中打开 Python 集成开发环境
+        ！！ 在 Python 3.8 中，启动 Jupyuter notebook，问题&解决
+            https://discourse.jupyter.org/t/jupyter-not-starting-in-win-10/2480
+            https://blog.csdn.net/zhouzixin053/article/details/102599456
+    jupyter --version 
+    jupyter --help 
+    jupyter notebook 
+    jupyter notebook --help
+4. config
+    0 - 只是针对 Python 3.8 的问题&解决
+        找到虚拟环境目录下的 \Lib\site-packages\tornado\platform\asyncio.py
+        在其 29 行，import asyncio 下添加：
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        保存、退出。
+      -- ： jupyter notebook
+  1. 配置 Jupyter notebook 的工作目录
+    如果不配置，工作目录默认是启动 Jupyter notebook 的目录
+    配置并指定工作目录为：C:\Dev\Python\exercise
+        0. 不建议启动时指定：
+            jupyter notebook --notebook-dir = "C:\Dev\Python\exercise"
+        1. 配置 Jupyter notebook 的配置文件，实现指定 Jupyter notebook 的工作目录
+            1 - 生成 Jupyter notebook 的配置文件：
+                jupyter notebook --generate-config
+            2 - 在上述命令提示的配置文件中，添加：
+                #c.NotebookApp.notebook_dir = '' 
+                c.NotebookApp.notebook_dir = 'C:\Dev\Python\exercise'
+5. operate：
+    new、输入、run|shift+enter、save
+-- Jupyter lab
+是 Jupyter notebook 的下一代版本，在虚拟环境中安装 Jupyter lab
+1. install 
+    0 - 进入虚拟环境 
+    1 - 安装
+        pip install jupyterlab
+2. validate 
+    jupyter --version
+    jupyter lab
+        显示了可用的几种notebook和console，
+            notebook下面是根据电脑上的python版本不同而不同的
+            console起到终端的作用，输入一条语句就会给出相应的输出
+        还有文本编辑器，用来编辑文本
+3. operate：
+    1. 可以使用 Jupyter notebook 同样的操作，指定 Jupyter lab 的工作目录 
+    2. new、sava、run
+4. 为 启动jupyter 配置虚拟环境
+    参看： jupyter notebook添加python内核（windows） https://www.icode9.com/content-3-71611.html
+    0. 只要安装了 jupyter 就默认安装了 ipykernel
+        可以通过 jupyter --version 查看 
+    1. 进入|新建某个虚拟环境 dlvideos
+        1. 激活
+        2. 为该 Python 环境（虚拟环境）安装 ipykernel
+            pip install ipykernel
+        3. 运行 ipykernel 安装|注册 当前 Python 环境（虚拟环境）内核
+            python -m ipykernel install --name 为当前Python 环境（虚拟环境）指定的名称
+            如：python -m ipykernel install --name dlvideos
+        4. 退出当前虚拟环境
+    2. 验证
+        进入 cmd，此时处于原生基础语言环境（此时，假设该环境已经安装了 jupyter）
+        查看内核： jupyter kernelspec list 
+        删除内核：jupyter kernelspec remove 前面通过--name指定的名称
+3. 启动 jupyter lab 
+    cmd -> jupyter lab -> 
+        菜单栏 -> Kernel -> Change Kernel...
+        或者：窗口右上方
+        均可切换
+-- 建议：使用 jupyter lab 替代 Jupyter notebook 

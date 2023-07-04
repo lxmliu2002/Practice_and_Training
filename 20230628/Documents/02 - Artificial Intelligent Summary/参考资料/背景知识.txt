@@ -1,0 +1,191 @@
+0. Index
+    - 论文下载：
+        https://scholar.google.com
+        http://tool.yovisun.com/scihub/
+    1. 线性可分&异或问题
+    2. 深度学习发展史 & 机器学习
+    
+    
+1. 线性可分&异或问题
+    为什么异或问题是线性不可分割的？
+        因为
+            感知机是处理线性问题的
+            异或问题是非线性问题
+    1. 什么是线性可分？
+        N维的 binary dataset是否线性可分取决于是否存在 N-1维的线性空间分割这个 dataset成两部分.
+        按照直觉来说
+            对于一个一维直线（或曲线），“线性可分”就是能有一个点按照某个规则将直线（或曲线）一分为二。
+            对于一个二维平面，“线性可分”就是能有一条直线按照某个规则将平面一分为二。
+            对于一个三维空间，“线性可分”就是能有一个平面按照某个规则将空间一分为二。
+            上诉的都是可以通过画图直观的看出来，推广至更高维度空间
+        对于一个n维空间，“线性可分”就是能有一个n-1维空间按照某个规则将n维空间一分为二。
+      -- 理解：能线性可分，就是能分类并预测。所谓n维空间，就是有n个参数的一个问题。
+    2. 为什么异或问题是非线性问题？
+        平面上4个点， （0,0）（1,1）为一类， （0,1）（1,0）为另一类。
+        线性可分就是指通过平面上一条直线 ax+by+c=0 可以将上述两类的点分开到直线的两侧。 
+            假设存在这样的直线，则（0,0）（1,1）代入直线方程（不妨假设该类在直线的正侧, 即>0;则另一类在直线的负侧, 即<0.）：
+                c>0 (式1)
+                a+b+c>0 (式2)
+            把（0,1）(1,0)代入直线方程
+                b+c<0 (式3)
+                a+c<0 (式4)
+            而（3）+（4）-（1） 与 （2）矛盾，所以不存在这样的直线
+        即：做不到切一刀就把一个平面切成四份
+            想要分割这个异或平面需要两条直线，但是线性分割的内涵就是一刀切(一条线分割)。
+        -- 理解： 
+            设有一个函数f1(x,y)，该函数为：
+                f1(0,0)=0; f1(1,1)=0; f1(0,1)=1; f1(1,0)=1;     == 即异或(XOR)的规则（相同为0，不同为1）
+            设有一个函数f2(x,y)，该函数为：
+                f2(0,0)=0; f2(1,1)=1; f2(0,1)=0; f2(1,0)=0;     == 即与(AND)的规则（有一个0结果就为0）
+            设有一个函数f3(x,y)，该函数为：
+                f3(0,0)=0; f3(1,1)=1; f3(0,1)=1; f3(1,0)=1;     == 即或(OR)的规则（有一个1结果就为1）
+            将上述 x,y 映射为二维直角坐标系的 4 个点，则： 
+                对于f2和f3函数对应的规则(AND\OR)的点，可以用一条线分隔；
+                对于f1函数对应的规则(XOR)的点，不可以用一条直线分隔；
+            二维空间的 XOR 就可以不可以线性可分（即：线性不可分，不是线性问题，是非线性问题），更高的n维的就更不可能了。
+                参看：1969, Minsky, XOR problem.png
+    3. 补充阅读
+        为什么逻辑异或是线性不可分的？
+        “异或问题是线性不可分割的”，默认前提是二维平面的异或问题是线性不可分割的。
+        如果投射到三维平面就是线性可分割的。二维映射到三维就能分开了。
+            一个最简单的方法就是将点映射为(x1,x2,(x1-x2)²)，是SVM核函数的最简单的例子（核SVM非线性分类的原理）。
+            通过升维，把低维线性不可分问题转化为高维线性可分问题，不过这个升维过程一定不是线性映射。
+    参看：
+        https://www.zhihu.com/question/301385613
+        https://www.ucloud.cn/yun/45155.html
+        https://blog.csdn.net/UFv59to8/article/details/81107538
+                
+    
+2. 深度学习发展史 & 机器学习
+    TensorFlow系列专题（三）：深度学习简介
+        http://www.tensorflownews.com/2018/10/30/tensorflow%E7%B3%BB%E5%88%97%E4%B8%93%E9%A2%98%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%AE%80%E4%BB%8B/
+     深度学习发展史
+        http://tensornews.cn/develop_deep_learning/
+    人工智能、机器学习、深度学习，到底他们哥仨是什么关系？
+        https://blog.csdn.net/UFv59to8/article/details/81107538
+        https://ask.hellobi.com/blog/datakong/10437
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+import numpy as np  
+def affine_forward(x, w, b):   
+    """    
+    Computes the forward pass for an affine (fully-connected) layer. 
+    The input x has shape (N, d_1, ..., d_k) and contains a minibatch of N   
+    examples, where each example x[i] has shape (d_1, ..., d_k). We will    
+    reshape each input into a vector of dimension D = d_1 * ... * d_k, and    
+    then transform it to an output vector of dimension M.    
+    Inputs:    
+    - x: A numpy array containing input data, of shape (N, d_1, ..., d_k)    
+    - w: A numpy array of weights, of shape (D, M)    
+    - b: A numpy array of biases, of shape (M,)   
+    Returns a tuple of:    
+    - out: output, of shape (N, M)    
+    - cache: (x, w, b)   
+    """
+    out = None
+    # Reshape x into rows
+    N = x.shape[0]
+    x_row = x.reshape(N, -1)         # (N,D)
+    out = np.dot(x_row, w) + b       # (N,M)
+    cache = (x, w, b)
+
+    return out,cache
+
+def affine_backward(dout, cache):   
+    """    
+    Computes the backward pass for an affine layer.    
+    Inputs:    
+    - dout: Upstream derivative, of shape (N, M)    
+    - cache: Tuple of: 
+    - x: Input data, of shape (N, d_1, ... d_k)    
+    - w: Weights, of shape (D, M)    
+    Returns a tuple of:   
+    - dx: Gradient with respect to x, of shape (N, d1, ..., d_k)    
+    - dw: Gradient with respect to w, of shape (D, M) 
+    - db: Gradient with respect to b, of shape (M,)    
+    """    
+    x, w, b = cache    
+    dx, dw, db = None, None, None   
+    dx = np.dot(dout, w.T)                       # (N,D)    
+    dx = np.reshape(dx, x.shape)                 # (N,d1,...,d_k)   
+    x_row = x.reshape(x.shape[0], -1)            # (N,D)    
+    dw = np.dot(x_row.T, dout)                   # (D,M)    
+    db = np.sum(dout, axis=0, keepdims=True)     # (1,M)    
+
+    return dx, dw, db
+#输入
+X = np.array([[1,1],  
+            [-1,1],  
+            [-1,-1],  
+            [1,-1]]) 
+t = np.array([0,1,2,3])  
+np.random.seed(1)  #可以去掉
+print (X.shape[1])
+# 一些初始化参数
+weight_scale = 1
+input_dim = X.shape[1]     #输入维度
+num_classes = t.shape[0]   #输出维度
+hidden_dim = 50             #隐藏层维度
+reg = 0.001
+epsilon = 0.001
+# randomly initialize our weights with mean 0  
+W1 = weight_scale * np.random.randn(input_dim, hidden_dim)  
+W2 = weight_scale * np.random.randn(hidden_dim, num_classes)  
+b1 = np.zeros((1, hidden_dim))
+b2 = np.zeros((1, num_classes))
+
+# 训练循环
+for j in range(10000):
+    # 前向传播
+    H,fc_cache = affine_forward(X,W1,b1)  #仿射
+    H = np.maximum(0, H) #激活
+    relu_cache = H
+    Y,cachey = affine_forward(H,W2,b2)  #仿射
+    
+    # Softmax
+    probs = np.exp(Y - np.max(Y, axis=1, keepdims=True))    
+    probs /= np.sum(probs, axis=1, keepdims=True)  # Softmax
+    
+    N = Y.shape[0]  
+    print(probs[np.arange(N), t])
+    loss = -np.sum(np.log(probs[np.arange(N), t])) / N
+    print(loss)
+
+    # 反向传播
+    dx = probs.copy()    
+    dx[np.arange(N), t] -= 1    
+    dx /= N    #到这里是反向传播到softmax前
+    # Backward pass: compute gradients
+    dh1, dW2, db2 = affine_backward(dx, cachey)
+
+    dh1[relu_cache <= 0] = 0 
+    dX, dW1, db1 = affine_backward(dh1, fc_cache)
+    dW2 += reg * W2
+    dW1 += reg * W1
+
+    W2 += -epsilon * dW2
+    b2 += -epsilon * db2
+    W1 += -epsilon * dW1
+    b1 += -epsilon * db1
+
+test = np.array([[2,2],[-2,2],[-2,-2],[2,-2]])
+H,fc_cache = affine_forward(test,W1,b1)  #仿射
+H = np.maximum(0, H) #激活
+relu_cache = H
+Y,cachey = affine_forward(H,W2,b2)  #仿射
+    # Softmax
+probs = np.exp(Y - np.max(Y, axis=1, keepdims=True))    
+probs /= np.sum(probs, axis=1, keepdims=True)  # Softmax
+for k in range(4):
+    print(test[k,:],"所在的象限为",np.argmax(probs[k,:])+1)
+print(probs)

@@ -1,0 +1,13 @@
+20270628 
+
+0. 回顾
+
+1. AI&ML/DL Survey
+
+2. 演练
+
+作业：
+1. 稍微看下提供的参考资料
+2. 仔细看下 背景知识.txt 和 浏览器野史User Agent列传.txt
+3. 理解并运行 mytestnn.py
+4. 学习并演练 19 - Data Analysis & Data Mining

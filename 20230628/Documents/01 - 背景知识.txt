@@ -1,0 +1,469 @@
+0. URL（Uniform / Universal Resource Locator的缩写）
+    统一资源定位符，是用于完整地描述Internet上网页和其他资源的地址的一种标识方法。
+    基本格式：scheme://host[:port#]/path/…/[?query-string][#anchor]
+        其中：
+            scheme：协议(例如：http, https, ftp)
+            host：服务器的IP地址或者域名
+            port#：服务器的端口（如果是走协议默认端口，缺省端口80）
+            path：访问资源的路径
+            query-string：参数，发送给http服务器的数据
+            anchor：锚（跳转到网页的指定锚点位置）
+
+1. 客户端HTTP请求
+    URL是标识资源的位置，HTTP是用来提交和获取资源。
+    客户端（浏览器、爬虫程序）发送一个HTTP请求到服务器的请求消息，包括以下格式：
+        请求行、请求头部、空行、请求数据
+    0. 一个典型的HTTP请求（在哪看）
+        GET https://www.baidu.com/ HTTP/1.1
+        Host: www.baidu.com
+        Connection: keep-alive
+        Upgrade-Insecure-Requests: 1
+        User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+        Accept-Encoding: gzip, deflate, br
+        Accept-Language: zh,zh-CN;q=0.8,ar;q=0.6,zh-TW;q=0.4
+        Cookie: BAIDUID=AE4D1DA6B2D6689BB8C557B3436893E3:FG=1; BIDUPSID=AE4D1DA6B2D6689BB8C557B3436893E3; PSTM=1501466227; BD_UPN=12314353; BD_CK_SAM=1; PSINO=1; H_PS_PSSID=1420_25548_21080_20929; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BDSVRTM=0
+    其中：
+    1. 常用请求头：
+        1. Host (主机和端口号)
+        Host：对应网址URL中的Web名称和端口号，用于指定被请求资源的Internet主机和端口号，通常属于URL的一部分。
+        2. Connection (链接类型)
+        Connection：表示客户端与服务连接类型
+            Client 发起一个包含 Connection:keep-alive 的请求，HTTP/1.1使用 keep-alive 为默认值。
+            Server收到请求后：
+                如果 Server 支持 keep-alive，回复一个包含 Connection:keep-alive 的响应，不关闭连接；
+                如果 Server 不支持 keep-alive，回复一个包含 Connection:close 的响应，关闭连接。
+            如果client收到包含 Connection:keep-alive 的响应，向同一个连接发送下一个请求，直到一方主动关闭连接。
+        keep-alive在很多情况下能够重用连接，减少资源消耗，缩短响应时间，比如当浏览器需要多个文件时(比如一个HTML文件和相关的图形文件)，不需要每次都去请求建立连接。
+        3. Upgrade-Insecure-Requests (升级为HTTPS请求)
+        Upgrade-Insecure-Requests：升级不安全的请求，意思是会在加载 http 资源时自动替换成 https 请求，让浏览器不再显示https页面中的http请求警报。
+        HTTPS 是以安全为目标的 HTTP 通道，所以在 HTTPS 承载的页面上不允许出现 HTTP 请求，一旦出现就是提示或报错。
+        4. User-Agent (浏览器名称)
+        User-Agent：是客户浏览器的名称，以后会详细讲。
+        5. Accept (传输文件类型)
+        Accept：指浏览器或其他客户端可以接受的MIME（Multipurpose Internet Mail Extensions（多用途互联网邮件扩展））文件类型，服务器可以根据它判断并返回适当的文件格式。
+        举例：
+        Accept: */*：表示什么都可以接收。
+        Accept：image/gif：表明客户端希望接受GIF图像格式的资源；
+        Accept：text/html：表明客户端希望接受html文本。
+        Accept: text/html, application/xhtml+xml;q=0.9, image/*;q=0.8：表示浏览器支持的 MIME 类型分别是 html文本、xhtml和xml文档、所有的图像格式资源。
+        q是权重系数，范围 0 =< q <= 1，q 值越大，请求越倾向于获得其“;”之前的类型表示的内容。若没有指定q值，则默认为1，按从左到右排序顺序；若被赋值为0，则用于表示浏览器不接受此内容类型。
+        Text：用于标准化地表示的文本信息，文本消息可以是多种字符集和或者多种格式的；Application：用于传输应用程序数据或者二进制数据。详细请点击
+        6. Referer (页面跳转处)
+        Referer：表明产生请求的网页来自于哪个URL，用户是从该 Referer页面访问到当前请求的页面。这个属性可以用来跟踪Web请求来自哪个页面，是从什么网站来的等。
+        有时候遇到下载某网站图片，需要对应的referer，否则无法下载图片，那是因为人家做了防盗链，原理就是根据referer去判断是否是本网站的地址，如果不是，则拒绝，如果是，就可以下载；
+        7. Accept-Encoding（文件编解码格式）
+        Accept-Encoding：指出浏览器可以接受的编码方式。编码方式不同于文件格式，它是为了压缩文件并加速文件传递速度。
+        浏览器在接收到Web响应之后先解码，然后再检查文件格式，许多情形下这可以减少大量的下载时间。
+        举例：Accept-Encoding:gzip;q=1.0, identity; q=0.5, *;q=0
+        如果有多个Encoding同时匹配, 按照q值顺序排列，本例中按顺序支持 gzip, identity压缩编码，支持gzip的浏览器会返回经过gzip编码的HTML页面。 如果请求消息中没有设置这个域服务器假定客户端对各种内容编码都可以接受。
+        8. Accept-Language（语言种类）
+        Accept-Langeuage：指出浏览器可以接受的语言种类，如en或en-us指英语，zh或者zh-cn指中文，当服务器能够提供一种以上的语言版本时要用到。
+        9. Accept-Charset（字符编码）
+        Accept-Charset：指出浏览器可以接受的字符编码。
+        举例：Accept-Charset:iso-8859-1,gb2312,utf-8
+            ISO8859-1：通常叫做Latin-1。Latin-1包括了书写所有西方欧洲语言不可缺少的附加字符，英文浏览器的默认值是ISO-8859-1.
+            gb2312：标准简体中文字符集;
+            utf-8：UNICODE 的一种变长字符编码，可以解决多种语言文本显示问题，从而实现应用国际化和本地化。
+        如果在请求消息中没有设置这个域，缺省是任何字符集都可以接受。
+        10. Cookie （Cookie）
+        Cookie：浏览器用这个属性向服务器发送Cookie。Cookie是在浏览器中寄存的小型数据体，它可以记载和服务器相关的用户信息，也可以用来实现会话功能，以后会详细讲。
+        11. Content-Type (POST数据类型)
+        Content-Type：POST请求里用来表示的内容类型。
+        举例：Content-Type = Text/XML; charset=gb2312：
+        指明该请求的消息体中包含的是纯文本的XML类型的数据，字符编码采用“gb2312”。
+    2. cookie和session
+        服务器和客户端的交互仅限于请求/响应过程，结束之后便断开，在下一次请求时，服务器会认为新的客户端。
+        为了维护他们之间的链接，让服务器知道这是前一个用户发送的请求，必须在一个地方保存客户端的信息。
+        Cookie：通过在 客户端 记录的信息确定用户的身份。
+        Session：通过在 服务器端 记录的信息确定用户的身份。
+    3. HTTP请求方法
+       序号   方法      描述
+            1     GET       请求指定的页面信息，并返回实体主体。
+            2     HEAD      类似于get请求，只不过返回的响应中没有具体的内容，用于获取报头
+            3     POST      向指定资源提交数据进行处理请求（例如提交表单或者上传文件），数据被包含在请求体中。POST请求可能会导致新的资源的建立和/或已有资源的修改。
+            4     PUT       从客户端向服务器传送的数据取代指定的文档的内容。
+            5     DELETE    请求服务器删除指定的页面。
+            6     CONNECT   HTTP/1.1协议中预留给能够将连接改为管道方式的代理服务器。
+            7     OPTIONS   允许客户端查看服务器的性能。
+            8     TRACE     回显服务器收到的请求，主要用于测试或诊断
+        主要方法get和post请求
+            GET是从服务器上获取数据，POST是向服务器传送数据
+            GET请求参数显示，都显示在浏览器网址上，HTTP服务器根据该请求所包含URL中的参数来产生响应内容，即“Get”请求的参数是URL的一部分。 例如： http://www.baidu.com/s?wd=Chinese
+            POST请求参数在请求体当中，消息长度没有限制而且以隐式的方式进行发送，通常用来向HTTP服务器提交量比较大的数据（比如请求中包含许多参数或者文件上传操作等），请求的参数包含在“Content-Type”消息头里，指明该消息体的媒体类型和编码.
+
+2. HTTP响应状态码
+    1xx:信息
+        100 Continue
+        服务器仅接收到部分请求，但是一旦服务器并没有拒绝该请求，客户端应该继续发送其余的请求。
+        101 Switching Protocols
+        服务器转换协议：服务器将遵从客户的请求转换到另外一种协议。
+
+    2xx:成功
+        200 OK
+        请求成功（其后是对GET和POST请求的应答文档）
+        201 Created
+        请求被创建完成，同时新的资源被创建。
+        202 Accepted
+        供处理的请求已被接受，但是处理未完成。
+        203 Non-authoritative Information
+        文档已经正常地返回，但一些应答头可能不正确，因为使用的是文档的拷贝。
+        204 No Content
+        没有新文档。浏览器应该继续显示原来的文档。如果用户定期地刷新页面，而Servlet可以确定用户文档足够新，这个状态代码是很有用的。
+        205 Reset Content
+        没有新文档。但浏览器应该重置它所显示的内容。用来强制浏览器清除表单输入内容。
+        206 Partial Content
+        客户发送了一个带有Range头的GET请求，服务器完成了它。
+
+    3xx:重定向
+        300 Multiple Choices
+        多重选择。链接列表。用户可以选择某链接到达目的地。最多允许五个地址。
+        301 Moved Permanently
+        所请求的页面已经转移至新的url。
+        302 Moved Temporarily
+        所请求的页面已经临时转移至新的url。
+        303 See Other
+        所请求的页面可在别的url下被找到。
+        304 Not Modified
+        未按预期修改文档。客户端有缓冲的文档并发出了一个条件性的请求（一般是提供If-Modified-Since头表示客户只想比指定日期更新的文档）。服务器告诉客户，原来缓冲的文档还可以继续使用。
+        305 Use Proxy
+        客户请求的文档应该通过Location头所指明的代理服务器提取。
+        306 Unused
+        此代码被用于前一版本。目前已不再使用，但是代码依然被保留。
+        307 Temporary Redirect
+        被请求的页面已经临时移至新的url。
+
+    4xx:客户端错误
+        400 Bad Request
+        服务器未能理解请求。
+        401 Unauthorized
+        被请求的页面需要用户名和密码。
+        401.1
+        登录失败。
+        401.2
+        服务器配置导致登录失败。
+        401.3
+        由于 ACL 对资源的限制而未获得授权。
+        401.4
+        筛选器授权失败。
+        401.5
+        ISAPI/CGI 应用程序授权失败。
+        401.7
+        访问被 Web 服务器上的 URL 授权策略拒绝。这个错误代码为 IIS 6.0 所专用。
+        402 Payment Required
+        此代码尚无法使用。
+        403 Forbidden
+        对被请求页面的访问被禁止。
+        403.1
+        执行访问被禁止。
+        403.2
+        读访问被禁止。
+        403.3
+        写访问被禁止。
+        403.4
+        要求 SSL。
+        403.5
+        要求 SSL 128。
+        403.6
+        IP 地址被拒绝。
+        403.7
+        要求客户端证书。
+        403.8
+        站点访问被拒绝。
+        403.9
+        用户数过多。
+        403.10
+        配置无效。
+        403.11
+        密码更改。
+        403.12
+        拒绝访问映射表。
+        403.13
+        客户端证书被吊销。
+        403.14
+        拒绝目录列表。
+        403.15
+        超出客户端访问许可。
+        403.16
+        客户端证书不受信任或无效。
+        403.17
+        客户端证书已过期或尚未生效。
+        403.18
+        在当前的应用程序池中不能执行所请求的 URL。这个错误代码为 IIS 6.0 所专用。
+        403.19
+        不能为这个应用程序池中的客户端执行 CGI。这个错误代码为 IIS 6.0 所专用。
+        403.20
+        Passport 登录失败。这个错误代码为 IIS 6.0 所专用。
+        404 Not Found
+        服务器无法找到被请求的页面。
+        404.0
+        没有找到文件或目录。
+        404.1
+        无法在所请求的端口上访问 Web 站点。
+        404.2
+        Web 服务扩展锁定策略阻止本请求。
+        404.3
+        MIME 映射策略阻止本请求。
+        405 Method Not Allowed
+        请求中指定的方法不被允许。
+        406 Not Acceptable
+        服务器生成的响应无法被客户端所接受。
+        407 Proxy Authentication Required
+        用户必须首先使用代理服务器进行验证，这样请求才会被处理。
+        408 Request Timeout
+        请求超出了服务器的等待时间。
+        409 Conflict
+        由于冲突，请求无法被完成。
+        410 Gone
+        被请求的页面不可用。
+        411 Length Required
+        "Content-Length" 未被定义。如果无此内容，服务器不会接受请求。
+        412 Precondition Failed
+        请求中的前提条件被服务器评估为失败。
+        413 Request Entity Too Large
+        由于所请求的实体的太大，服务器不会接受请求。
+        414 Request-url Too Long
+        由于url太长，服务器不会接受请求。当post请求被转换为带有很长的查询信息的get请求时，就会发生这种情况。
+        415 Unsupported Media Type
+        由于媒介类型不被支持，服务器不会接受请求。
+        416 Requested Range Not Satisfiable
+        服务器不能满足客户在请求中指定的Range头。
+        417 Expectation Failed
+        执行失败。
+        423
+        锁定的错误。
+
+    5xx:服务器错误
+        500 Internal Server Error
+        请求未完成。服务器遇到不可预知的情况。
+        500.12
+        应用程序正忙于在 Web 服务器上重新启动。
+        500.13
+        Web 服务器太忙。
+        500.15
+        不允许直接请求 Global.asa。
+        500.16
+        UNC 授权凭据不正确。这个错误代码为 IIS 6.0 所专用。
+        500.18
+        URL 授权存储不能打开。这个错误代码为 IIS 6.0 所专用。
+        500.100
+        内部 ASP 错误。
+        501 Not Implemented
+        请求未完成。服务器不支持所请求的功能。
+        502 Bad Gateway
+        请求未完成。服务器从上游服务器收到一个无效的响应。
+        502.1
+        CGI 应用程序超时。　·
+        502.2
+        CGI 应用程序出错。
+        503 Service Unavailable
+        请求未完成。服务器临时过载或当机。
+        504 Gateway Timeout
+        网关超时。
+        505 HTTP Version Not Supported
+        服务器不支持请求中指明的HTTP协议版本
+
+3. 浏览器内核
+    浏览器                         内核
+    IE                           Trident
+    Chrome                       Webkit
+    Firefox                      Gecho
+    Opera                        Pesto
+    Safari(Apple)                Webkit 
+    
+4. Request部分详解
+        Headers —— 显示客户端发送到服务器的 HTTP 请求的 header，显示为一个分级视图，包含了 Web 客户端信息、Cookie、传输状态等。
+        Textview —— 显示 POST 请求的 body 部分为文本。
+        WebForms —— 显示请求的 GET 参数 和 POST body 内容。
+        HexView —— 用十六进制数据显示请求。
+        Auth —— 显示响应 header 中的 Proxy-Authorization(代理身份验证) 和 Authorization(授权) 信息.
+        Raw —— 将整个请求显示为纯文本。
+        JSON - 显示JSON格式文件。
+        XML —— 如果请求的 body 是 XML 格式，就是用分级的 XML 树来显示它。
+5. Responser部分详解
+        Transformer —— 显示响应的编码信息。
+        Headers —— 用分级视图显示响应的 header。
+        TextView —— 使用文本显示相应的 body。
+        ImageVies —— 如果请求是图片资源，显示响应的图片。
+        HexView —— 用十六进制数据显示响应。
+        WebView —— 响应在 Web 浏览器中的预览效果。
+        Auth —— 显示响应 header 中的 Proxy-Authorization(代理身份验证) 和 Authorization(授权) 信息。
+        Caching —— 显示此请求的缓存信息。
+        Privacy —— 显示此请求的私密 (P3P) 信息。
+        Raw —— 将整个响应显示为纯文本。
+        JSON - 显示JSON格式文件。
+        XML —— 如果响应的 body 是 XML 格式，就是用分级的 XML 树来显示它 。
+
+6. UserAgent 
+    服务器端根据发送请求的客户端的UserAgent,返回不同的响应.
+        如: 显示器端\移动端返回的页面不同
+    1. Http Headers
+        HTTP 消息头允许客户端和服务器通过 request和 response传递附加信息。
+            一个请求头由名称（不区分大小写）后跟一个冒号“：”，冒号后跟具体的值（不带换行符）组成。
+            该值前面的引导空白会被忽略。
+        分为：
+            一般头: 同时适用于请求和响应消息，但与最终消息主体中传输的数据无关的消息头。
+            请求头: 包含更多有关要获取的资源或客户端本身信息的消息头。
+            响应头: 包含有关响应的补充信息，如其位置或服务器本身（名称和版本等）的消息头。
+            实体头: 包含有关实体主体的更多信息，比如主体长(Content-Length)度或其MIME类型。
+    2. UserAgent
+        Request Http Header 中 UserAgent 包含发送请求的客户端的信息
+            (浏览器,各种不同; 其他种类的客户端, 如:搜索引擎的爬虫)
+        User-Agent 首部包含了一个特征字符串: 
+            含有让网络协议的对端来识别发起请求的UserAgent的应用类型、操作系统、软件开发商以及版本号。
+    3. 获取浏览器的 UserAgent 
+        本地获取方式: 
+            在任何一个浏览器的地址栏中, 输入:  javascript:alert(navigator.userAgent)
+        在线获取: 
+            http://useragentstring.com/
+        获取所有(不仅仅限于浏览器)不同客户端的 UserAgent: 
+            http://www.useragentstring.com/pages/useragentstring.php
+                也包括各大搜索引擎的网络爬虫的 UserAgent 
+                https://udger.com/resources/ua-list
+                    
+7. HTML 相关
+    0. HTML 资源:
+        常规: w3 国际组织的官方教程\准确\规范\但不深入
+            http://www.w3school.com.cn/index.html
+        推荐: Mozilla Developer Network
+            https://developer.mozilla.org/zh-CN/
+        建议也学习下 CSS 和 JavaScript
+        表述 HTML & Spider 关系的公式:
+            页面 = 静态内容(要显示的数据内容-html, 内容显示的格式-css) + 动态内容(JavaScript动态特效)
+    1. HTML 基础
+        !! HTML 只是简单介绍描述静态内容的元素(标签)相关的知识
+            因为: 抓取网页的内容, 一般都是包含在HTML的元素中.
+        1. HTML 快速 (HTML: 超文本标记|签语言)
+            标记语言，告诉浏览器显示访问网页内容. 
+                由一系列的元素Element(s)组成
+                每一个元素又由标签|标记Tag按照一定的规范构成
+                分类: 
+                    不含内容Content的空元素|单标签<Tagname ...若干属性Attribute.../>
+                        此时: 
+                            Element = tag
+                    含有内容Content的元素|双标签<Tagname ...若干属性Attribute...>Content</Tagname>
+                        此时: 
+                            Element = Opening tag + Content + Closing tag
+                            其中: Content 也可以含有 Element(子元素|嵌套元素|嵌套标签)
+                    其中: Attribute 包含元素的额外信息，不会出现在实际显示的Content中
+                        1. Attribute 和 Tagname 间以空格分开; 
+                        2. Element 可以含有多个Attribute, 之间也以空格分开;
+                        2. Attribute 的形式: key = value
+                            key: 属性名,
+                            value: 属性值, 用一对界符 ' 或者 " 包围, 也可以没有界符.
+                                属性值可以有多个, 中间以空格分开
+                                value如果含有多个属性, 必须用界符包围
+                                建议使用加界符(' 或者 ")
+            结论: 
+                需要抓取的网页的内容,其实是在元素中的:
+                    1. Tag Attribute 的 value中
+                    2. Element 的 Contents 中
+                那么, 问题就变成了,如何在网页中定位到要抓取内容所在的标签?
+                    答案: 可以借助 Tagname\TagAttribute\(极端情况, 需要借助正则表达式)Content
+            !!! 很重要, 在实现 Spider 的过程, 要一直记住上述结论.
+                所以, 在实现 Spider 过程中, 是否会(写)HTML|CSS|JavaScript并不重要,
+                    重要的是,要会分析网页中的HTML Elements, 要知道如何定位含有与要抓取内容在HTML页面的元素.
+        2. 简单介绍几个 HTML 元素
+            0. 在 Web 测试 HTML : https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Introduction_to_HTML
+                http://jsbin.com/?html,output
+                https://thimble.mozilla.org/zh-CN/ (推荐, 含有指点元素功能, 显示器&移动端双显示模式)
+                或者: 本地测试一样
+                    notepad + browser
+                    java ee + tomcat
+            1. 必会的几个元素
+                HTML 页面的基础框架: 
+                    <!DOCTYPE html>     // 最短的有效的文档声明
+                    <html>                      // 根元素
+                      <head>    // 包含在HTML页面中但不想在HTML页面中显示的内容,
+                                        // 比如: 在搜索结果中出现的关键字和页面描述，CSS样式，字符集声明等等。
+                        <meta charset="utf-8">      // 文档使用utf-8字符集编码
+                        <title>My test page</title>     // 在浏览器标签上页面标题
+                      </head>
+                      <body>    // 包含所有显示在页面上的内容
+                            <p>含有硬回车的段落元素</p>
+                            含有软回车的段落元素<br/> 
+                            直接输入的文字
+                            <a href='http://www.baidu.com' title = "含有属性的超链标签">访问百度</a>
+                            <a href = "#anchoredpoint">本页中定义了锚点的位置</a>
+                            <a href="http://url" download="url下待下载的的资源文件名">下载资源</a>
+                            <a href="mailto:someone@xxx.com">给我发邮件吧</a>
+                            <img src="xxx.png" alt="如果没有图片,显示的文字" title = "img标签,显示图片"/>
+                            <a href='http://www.baidu.com' title = "含有属性的超链标签">
+                                <img src="xxx.png" 
+                                    alt="如果没有图片,显示的文字" 
+                                    title = "内嵌在a标签中的可以点选的超链图片"/>
+                            </a>
+                            直接输入的文字
+                            <!-- 不显示在页面中注释内容 -->
+                            <hr /> // 在页面中显示一条直线
+                            <h1>一级标题, 一共有6级,从 h1 到 h6 </h1>
+                            <ul>
+                                <li>无序清单第 1 项</li>
+                                <li>无序清单第 1 项</li>
+                            </ul>
+                            <ol>
+                                <li>有序清单第 1 项</li>
+                                <li>有序清单第 1 项</li>
+                            </ol>
+                            <ol>
+                              <li>含有嵌套无序清单的有序清单第 1 项</li>
+                              <li>含有嵌套无序清单的有序清单第 2 项</li>
+                              <ul>
+                                  <li>内嵌在有序清单的无序清单第 1 项</li>
+                                  <li>内嵌在有序清单的无序清单第 2 项</li>
+                                </ul>
+                              </li>
+                            </ol>
+                            <dl>
+                                <dt>描述列表的第 1 个术语</dt>
+                                <dd>第 1 个术语的具体描述</dd>
+                                <dt>描述列表的第 2 个术语</dt>
+                                <dd>第 2 个术语的具体描述</dd>
+                            </dl>
+                            <strong id = "anchoredpoint">使用粗体描述描述的锚点</strong>和<em>斜体描述</em>
+                            <pre>
+                                按照格式显示内容,空   格 和
+                                    换行都照原样显示
+                                    
+                                    多用于显示程序代码, 可以显示原始的缩进形式. 
+                            </pre>
+                            <table>
+                                <caption>表格的标题,表格用于展示数据,而非实现网页布局</caption>
+                                <thead>
+                                    <tr>
+                                        <th>表头第 1 列</th>
+                                        <th>表头第 2 列</th>
+                                        <th>表头第 3 列</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                  <tr>
+                                        <td colspan="2">表尾第1,合并2列</td>
+                                        <td>表尾,第2</td>
+                                  </tr>
+                                </tfoot>
+                                <tbody>
+                                  <tr>
+                                        <td>表格第 1 行第 1 列</td>
+                                        <td>表格第 1 行第 2 列</td>
+                                        <td>表格第 1 行第 3 列</td>
+                                  </tr>
+                                  <tr>
+                                        <td>表格第 2 行第 1 列</td>
+                                        <td>表格第 2 行第 2 列</td>
+                                        <td>表格第 2 行第 3 列</td>
+                                  </tr>
+                                  <tr>
+                                        <td>表格第 3 行第 1 列</td>
+                                        <td>表格第 3 行第 2 列</td>
+                                        <td>表格第 3 行第 3 列</td>
+                                  </tr>
+                                </tbody>
+                            </table>
+                            <form action = "" method = "">
+                                用户名: <input id = "usn" name = "username"/> <br/>
+                                密码:<input type = "password" id = "pwd" name = "password"/><br/>
+                                <input id = "submitbtn" type = "submit" value = "登录"/>
+                            </form>
+                      </body>
+                    </html>

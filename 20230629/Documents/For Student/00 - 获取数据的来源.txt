@@ -1,0 +1,109 @@
+获取数据的来源：
+0. 获取数据的来源分类：
+    1. 外部（公开/半公开）数据
+        成型数据集（已经整理好、规整的数据集）
+            付费/免费
+            个人推荐有用的该类数据集，可以参考下面的文档内容。
+        未成型数据集：【数据爬取/抓取】，使用爬虫获取网络资源的数据，获取后，需要自行预处理
+          ！凡可见均可得：只要在浏览器页面中能看到的数据，应均可以抓取。
+            公开数据
+                直接在网页中获取的数据
+            半公开数据
+                需要登录/验证码后，可以获取的数据
+    2. 内部（自有业务数据）数据
+        【数据读取】
+        自有内部的数据库中的数据、日志数据、应用中保存的各类数据（csv、txt、xls...）
+    或者也有基于其他角度的划分：
+        行为数据、交易数据
+
+1. 常见可用的公开数据集的数据源
+    0. 政府统计局数据
+        http://www.stats.gov.cn/
+        http://www.stats.gov.cn/sj/
+    1. 数据分析报告,数据报告,数据圈论坛 
+        主要包含数据：
+            国内宏观、区域数据、世界经济、价格数据、工业行业、区域数据、
+            国内宏观、区域数据、世界经济、价格数据、工业行业、区域数据。
+        http://www.shujuquan.com.cn/
+    2. 海量数据免费下载
+        主要包括数据：
+            语音识别、医疗健康、交通地理、电子商务、社交网络、图像识别、统计年鉴、研发数据等领域。
+        http://www.datatang.com/
+    3. 国云数据市场
+        主要包含数据：
+            生活服务、教育、能源、建筑、交通运输、政府、金融、农业、医疗、卫生
+        http://www.moojnn.com/
+    4. 数据包下载列表
+        主要数据包括：社交网络、电子商务、企业名录、 金融数据、生活服务、科研数据、知识库
+        http://www.dataduoduo.com/
+    5. 微盛投资
+        主要包含数据： 
+            沪深市场5分钟数据 wdz格式 转 txt、通达信，大智慧dad，飞狐dad，钱龙，同花顺等
+        http://www.wstock.net/wstock/wsmin.htm
+    6. 国家地球系统科学数据共享平台全球变化研究出版数据
+        http://www.geodata.cn/thematicView/
+    7. 中华人民共和国国家统计局>>统计数据
+        主要包含数据： 
+            免费的统计数据，友情链接里面有很多地方的数据以及国外各国的数据。
+        http://www.stats.gov.cn/tjsj/
+    8.国家数据
+        主要包含数据：
+        国家的各种数据，所有数据均是免费。
+        http://data.stats.gov.cn/
+    9. 产业数据_统计数据
+        主要包含数据： 
+            能源、电力、冶金、化工、机电、电子、汽车、物流、房产、建材、农林、安防、包装、环保、食品、
+            烟酒、医药、保健品、IT、通信、数码、家电、家居、家具、文化、传媒、办公、文教、服务、金融、
+            培训、旅游、服装、玩具、礼品、工艺品等。
+        http://www.chyxx.com/data/
+    10. 百度数据开放平台
+        https://open.baidu.com/open/#/
+    11. 数邦客
+        http://www.databanker.cn/
+    12. Netflix prize 数据集
+        描述：包含Netflix上48万多个随机选取的匿名用户，对于1万7千多部电影的1兆多个电影评分
+        时间：1988.10~2005.11
+        内容：
+        包括training set，movie titles，probe set，qualifying set等文件。
+            Trainning set包含4个特征值：电影ID、用户ID、评分（1~5）、日期；
+            Movie titles包含3个特征值：电影ID、上映年份、电影标题；
+            Probe set用于测试，包含2个特征值;电影ID、用户ID。
+        引用的论文：
+            [1]Matrix factorization techniques for recommender systems.2009
+                https://datajobs.com/data-science-repo/Recommender-Systems-%5BNetflix%5D.pdf
+            [2]Modeling relationships at multiple scales to improve accuracy of large recommender systems.2007
+                https://dl.acm.org/citation.cfm?id=1281206
+            [3]Factorization meets the neighborhood a multifaceted collaborative filtering model
+        数据集下载：
+            https://www.kaggle.com/netflix-inc/netflix-prize-data
+            百度云盘
+            http://dataju.cn/Dataju/web/datasetInstanceDetail/32
+    13. 电影数据集总结
+        https://blog.csdn.net/czzffff/article/details/44179087
+    14. 推荐系统可用数据集
+        1、MovieLens
+            适用于传统的推荐任务，提供了3种不同规模的数据，包含：
+                用户对电影的评分信息，用户的人口统计学特征以及电影的描述特征。
+            https://grouplens.org/datasets/movielens/
+        2、Filmtrust
+            适用于社会化推荐任务，规模较小，
+                包含用户对电影的评分信息，同时包含用户间的信任社交信息。
+            http://www.librec.net/datasets/filmtrust.zip
+        3、Douban
+            适用于社会化推荐任务，规模适中，
+                包含用户对电影的评分信息，同时包含用户间的信任社交信息。
+            https://www.cse.cuhk.edu.hk/irwin.king.new/pub/data/douban
+        4、Epinions
+            适用于社会化推荐任务，规模较大，
+                包含用户对电影的评分信息，同时包含用户间的信任社交信息，
+                值得注意的是，该数据集同时还包括不信任关系信息。
+            http://www.trustlet.org/datasets/
+        5、Yelp
+            几乎适用于所有推荐任务，数据规模大，需要手动提取自己需要的信息，
+                包含评价评分信息，用户信息（注册信息、粉丝数量、朋友信息），
+                商品信息（属性信息、位置信息、图像信息），建议信息等。
+            https://www.yelp.com/dataset/challenge
+    15. 各领域公开数据集下载
+        https://zhuanlan.zhihu.com/p/25138563
+        https://www.cnblogs.com/zdz8207/p/Public-Research-Quality-Datasets.html
+        https://yq.aliyun.com/articles/89763?spm=5176.100239.0.0.VNPa6p

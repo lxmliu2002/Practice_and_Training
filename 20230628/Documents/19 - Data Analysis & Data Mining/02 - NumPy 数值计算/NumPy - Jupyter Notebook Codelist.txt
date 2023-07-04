@@ -1,0 +1,380 @@
+# -*- coding: utf-8 -*-
+
+## 任务1 认识NumPy数组对象ndarray
+
+# 代码 1
+import numpy as np #导入 NumPy 库 
+arr1 = np.array([1, 2, 3, 4]) #创建一维数组 
+print(' 创建的数组为： ',arr1)
+
+# 创建二维数组
+arr2 = np.array([[1, 2, 3, 4],[4, 5, 6, 7], [7, 8, 9, 10]])
+print('创建的数组为：\n',arr2)
+
+print('数组类型为：',arr2.dtype)  #查看数组类型
+print('数组元素个数为：',arr2.size)  #查看数组元素个数
+print('数组每个元素大小为：',arr2.itemsize)  #查看数组每个元素大小
+
+
+# 代码 2
+arr2.shape = 4,3 #重新设置shape
+print('重新设置shape 后的arr2 为：',arr2)
+
+# 代码 3
+print('使用arange函数创建的数组为：\n',np.arange(0,1,0.1))
+
+# 代码 4
+print('使用linspace函数创建的数组为：',np.linspace(0, 1, 12))
+
+# 代码 5
+print('使用logspace函数创建的数组为：',np.logspace(0, 2, 20))
+
+# 代码 6
+print('使用zeros函数创建的数组为：',np.zeros((2,3)))
+
+# 代码 7
+print('使用eye函数创建的数组为：',np.eye(3))
+
+# 代码 8
+print('使用diag函数创建的数组为：',np.diag([1,2,3,4]))
+
+# 代码 9
+print('使用ones函数的数组为：',np.ones((5,3)))
+
+# 代码 10
+print('转换结果为：',np.float64(42))  #整型转换为浮点型
+print('转换结果为：',np.int8(42.0))  #浮点型转换为整型
+print('转换结果为：',np.bool(42))  #整型转换为布尔型
+print('转换结果为：',np.bool(0))  #整型转换为布尔型
+print('转换结果为：',np.float(True))  #布尔型转换为浮点型
+print('转换结果为：',np.float(False))  #布尔型转换为浮点型
+
+# 代码 11
+df = np.dtype([("name", np.str_, 40), ("numitems", np.int64),
+    ("price",np.float64)])
+print('数据类型为：',df)
+
+# 代码 12
+print('数据类型为：',df["name"])
+print('数据类型为：',np.dtype(df["name"]))
+
+# 代码 13
+itemz = np.array([("tomatoes", 42, 4.14),("cabbages", 13, 1.72)],
+    dtype=df)
+print('自定义数据为：',itemz)
+
+# 代码 14
+print('生成的随机数组为：',np.random.random(100))
+
+# 代码 15
+print('生成的随机数组为：\n',np.random.rand(10,5))
+
+# 代码 16
+print('生成的随机数组为：\n',np.random.randn(10,5))
+
+# 代码 17
+print('生成的随机数组为：',np.random.randint(2,10,size = [2,5]))
+
+# 代码 18
+arr = np.arange(10)
+print('索引结果为：',arr[5])  #用整数作为下标可以获取数组中的某个元素
+#用范围作为下标获取数组的一个切片，包括arr[3]不包括arr[5]
+print('索引结果为：',arr[3:5])
+print('索引结果为：',arr[:5])  #省略开始下标，表示从arr[0]开始
+#下标可以使用负数，-1表示从数组后往前数的第一个元素
+print('索引结果为：',arr[-1])
+
+arr[2:4] = 100,101
+print('索引结果为：',arr)  #下标还可以用来修改元素的值
+#范围中的第三个参数表示步长，2表示隔一个元素取一个元素
+print('索引结果为：',arr[1:-1:2])
+print('索引结果为：',arr[5:1:-2])  #步长为负数时，开始下标必须大于结束下标
+
+# 代码 19
+arr = np.array([[1, 2, 3, 4, 5],[4, 5, 6, 7, 8], [7, 8, 9, 10, 11]])
+print('创建的二维数组为：',arr)
+print('索引结果为：',arr[0,3:5])  #索引第0行中第3和第4列的元素
+#索引第2和第3行中第3列、第4列和第5列的元素
+print('索引结果为：\n',arr[1:,2:])
+print('索引结果为：',arr[:,2])  #索引第2列的元素
+
+# 代码 20
+#从两个序列的对应位置取出两个整数组成下标：arr[0,1], arr[1,2], arr[2,3]
+print('索引结果为：',arr[[(0,1,2),(1,2,3)]])
+print('索引结果为：',arr[1:,(0,2,3)])  #索引第2、3行中第0、2、3列的元素
+
+mask = np.array([1,0,1],dtype = np.bool)
+#mask是一个布尔数组，它索引第1、3行中第2列的元素
+print('索引结果为：',arr[mask,2])
+
+
+# 代码 21
+arr = np.arange(12)  #创建一维数组
+print('创建的一维数组为：',arr)
+print('新的一维数组为：',arr.reshape(3,4))  #设置数组的形状
+print('数组维度为：',arr.reshape(3,4).ndim)  #查看数组维度
+
+# 代码 22
+arr = np.arange(12).reshape(3,4)
+print('创建的二维数组为：',arr)
+print('数组展平后为：',arr.ravel())
+
+# 代码 23
+print('数组展平为：',arr.flatten())  #横向展平
+print('数组展平为：',arr.flatten('F'))  #纵向展平
+
+# 代码 24
+arr1 = np.arange(12).reshape(3,4)
+print('创建的数组1为：',arr1)
+
+arr2 = arr1*3
+print('创建的数组2为：',arr2)
+print('横向组合为：',np.hstack((arr1,arr2)))  #hstack函数横向组合
+
+# 代码 25
+print('纵向组合为：',np.vstack((arr1,arr2)))  #vstack函数纵向组合
+
+# 代码 26
+print('横向组合为：',np.concatenate((arr1,arr2),axis = 1))  #concatenate函数横向组合
+print('纵向组合为：',np.concatenate((arr1,arr2),axis = 0))  #concatenate函数纵向组合
+
+# 代码 27
+arr = np.arange(16).reshape(4,4)
+print('创建的二维数组为：',arr)
+print('横向分割为：',np.hsplit(arr, 2))  #hsplit函数横向分割
+
+# 代码 28
+print('纵向分割为：',np.vsplit(arr, 2))  #vsplit函数纵向分割
+
+# 代码 29
+print('横向分割为：',np.split(arr, 2, axis=1))  #split函数横向分割
+print('纵向分割为：',np.split(arr, 2, axis=0))  #split函数纵向分割
+
+## 任务2 认识NumPy矩阵与通用函数
+
+
+# 代码 30
+import numpy as np  #导入NumPy库
+matr1 = np.mat("1 2 3;4 5 6;7 8 9") #使用分号隔开数据
+print('创建的矩阵为：',matr1)
+
+matr2 = np.matrix([[123],[456],[789]])
+print('创建的矩阵为：',matr2)
+
+
+# 代码 31
+arr1 = np.eye(3)
+print('创建的数组1为：', arr1)
+
+arr2 = 3*arr1
+print('创建的数组2为：',arr2)
+
+print('创建的矩阵为：',np.bmat("arr1 arr2; arr1 arr2"))
+
+
+# 代码 32
+matr1 = np.mat("1 2 3;4 5 6;7 8 9")  #创建矩阵
+print('创建的矩阵为：',matr1)
+
+matr2 = matr1*3  #矩阵与数相乘
+print('创建的矩阵为：',matr2)
+print('矩阵相加结果为：',matr1+matr2)  #矩阵相加
+print('矩阵相减结果为：',matr1-matr2)  #矩阵相减
+print('矩阵相乘结果为：',matr1*matr2)  #矩阵相乘
+print('矩阵对应元素相乘结果为：',np.multiply(matr1,matr2))
+
+# 代码 33
+print('矩阵转置结果为：',matr1.T)  #转置
+print('矩阵共轭转置结果为：',matr1.H)  #共轭转置（实数的共轭就是其本身）
+print('矩阵的逆矩阵结果为：',matr1.I)  #逆矩阵
+print('矩阵的二维数组结果为：',matr1.A)  #返回二维数组的视图
+
+# 代码 34
+x = np.array([1,2,3])
+y = np.array([4,5,6])
+print('数组相加结果为：',x + y)  #数组相加
+print('数组相减结果为：',x - y)  #数组相减
+print('数组相乘结果为：',x * y)  #数组相乘
+print('数组相除结果为：',x / y)  #数组相除
+print('数组幂运算结果为：',x ** y)  #数组幂运算
+
+# 代码 35
+x = np.array([1,3,5])
+y = np.array([2,3,4])
+print('数组比较结果为：',x < y)
+print('数组比较结果为：',x > y)
+print('数组比较结果为：',x == y)
+print('数组比较结果为：',x >= y)
+print('数组比较结果为：',x <= y)
+print('数组比较结果为：',x != y)
+
+# 代码 36
+print('数组逻辑运算结果为：',np.all(x == y))  #np.all()表示逻辑and
+print('数组逻辑运算结果为：',np.any(x == y))  #np.any()表示逻辑or
+
+# 代码 37
+arr1 = np.array([[0,0,0],[1,1,1],[2,2,2],[3,3,3]])
+print('创建的数组1为：',arr1)
+print('数组1的shape为：',arr1.shape)
+arr2 = np.array([1,2,3])
+print('创建的数组2为：',arr2)
+print('数组2的shape为：',arr2.shape)
+print('数组相加结果为：',arr1 + arr2)
+
+# 代码 38
+arr1 = np.array([[0,0,0],[1,1,1],[2,2,2],[3,3,3]])
+print('创建的数组1为：',arr1)
+print('数组1的shape为：',arr1.shape)
+
+arr2 = np.array([1,2,3,4]).reshape((4,1))
+print('创建的数组2为：',arr2)
+print('数组2的shape为：',arr2.shape)
+print('数组相加结果为：',arr1 + arr2)
+
+
+### 任务3 NumPy数值计算基础
+
+# 代码 39
+import numpy as np  #导入NumPy库
+arr = np.arange(100).reshape(10,10)  #创建一个数组
+np.save("../tmp/save_arr",arr)  #保存数组
+print('保存的数组为：\n',arr)
+
+# 代码 40
+arr1 = np.array([[1,2,3],[4,5,6]])
+arr2 = np.arange(0,1.0,0.1)
+np.savez('../tmp/savez_arr',arr1,arr2)
+print('保存的数组1为：',arr1)
+print('保存的数组2为：',arr2)
+
+# 代码 41
+loaded_data = np.load("../tmp/save_arr.npy")  #读取含有单个数组的文件
+print('读取的数组为：\n',loaded_data)
+
+loaded_data1 = np.load("../tmp/savez_arr.npz")  #读取含有多个数组的文件
+print('读取的数组1为：',loaded_data1['arr_0'])
+print('读取的数组2为：',loaded_data1['arr_1'])
+
+# 代码 42
+arr = np.arange(0,12,0.5).reshape(4,-1)
+print('创建的数组为：',arr)
+
+#fmt ="%d"为指定保存为整数
+np.savetxt("../tmp/arr.txt", arr, fmt="%d", delimiter=",")
+#读入的时候也需要指定逗号分隔
+loaded_data = np.loadtxt("../tmp/arr.txt",delimiter=",")
+print('读取的数组为：',loaded_data)
+
+
+# 代码 43
+loaded_data = np.genfromtxt("../tmp/arr.txt", delimiter = ",")
+print('读取的数组为：',loaded_data)
+
+# 代码 44
+np.random.seed(42)  #设置随机种子
+arr = np.random.randint(1,10,size = 10)  #生成随机数
+print('创建的数组为：',arr)
+
+arr.sort()  #直接排序
+print('排序后数组为：',arr)
+
+arr = np.random.randint(1,10,size = (3,3))  #生成3行3列的随机数
+print('创建的数组为：',arr)
+
+arr.sort(axis = 1)  #沿着横轴排序
+print('排序后数组为：',arr)
+
+arr.sort(axis = 0)  #沿着纵轴排序
+print('排序后数组为：',arr)
+
+# 代码 45
+arr = np.array([2,3,6,8,0,7])
+print('创建的数组为：',arr)
+print('排序后数组为：',arr.argsort())  #返回值为重新排序值的下标
+
+
+# 代码 46
+a = np.array([3,2,6,4,5])
+b = np.array([50,30,40,20,10])
+c = np.array([400,300,600,100,200])
+d = np.lexsort((a,b,c))  #lexsort函数只接受一个参数，即（a,b,c）
+#多个键值排序是按照最后一个传入数据计算的
+print('排序后数组为：',list(zip(a[d],b[d],c[d])))
+
+
+# 代码 47
+names = np.array(['小明', '小黄', '小花', '小明', 
+    '小花', '小兰', '小白'])
+print('创建的数组为：',names)
+
+print('去重后的数组为：',np.unique(names))
+
+#跟np.unique等价的Python代码实现过程
+print('去重后的数组为：',sorted(set(names)))
+
+
+ints = np.array([1,2,3,4,4,5,6,6,7,8,8,9,10])  #创建数值型数据
+print('创建的数组为：',ints)
+print('去重后的数组为：',np.unique(ints))
+
+# 代码 48
+arr = np.arange(5)
+print('创建的数组为：',arr)
+print('重复后数组为：',np.tile(arr,3))  #对数组进行重复
+
+# 代码 49
+np.random.seed(42)  #设置随机种子
+arr = np.random.randint(0,10,size = (3,3))
+print('创建的数组为：',arr)
+print('重复后数组为：',arr.repeat(2, axis = 0))  #按行进行元素重复
+print('重复后数组为：',arr.repeat(2, axis = 1))  #按列进行元素重复
+
+# 代码 50
+arr = np.arange(20).reshape(4,5)
+print('创建的数组为：',arr)
+print('数组的和为：',np.sum(arr))  #计算数组的和
+print('数组横轴的和为：',arr.sum(axis = 0))  #沿着横轴计算求和
+print('数组纵轴的和为：',arr.sum(axis = 1))  #沿着纵轴计算求和
+print('数组的均值为：',np.mean(arr))  #计算数组均值
+print('数组横轴的均值为：',arr.mean(axis = 0))  #沿着横轴计算数组均值
+print('数组纵轴的均值为：',arr.mean(axis = 1))  #沿着纵轴计算数组均值
+print('数组的标准差为：',np.std(arr))  #计算数组标准差
+print('数组的方差为：',np.var(arr))  #计算数组方差
+print('数组的最小值为：',np.min(arr))  #计算数组最小值
+print('数组的最大值为：',np.max(arr))  #计算数组最大值
+print('数组的最小元素为：',np.argmin(arr))  #返回数组最小元素的索引
+print('数组的最大元素为：',np.argmax(arr))  #返回数组最大元素的索引
+
+arr = np.arange(2,10)
+print('创建的数组为：',arr)
+print('数组元素的累计和为：',np.cumsum(arr))  #计算所有元素的累计和
+print('数组元素的累计积为：',np.cumprod(arr))  #计算所有元素的累计积
+
+
+### 案例：
+
+# 代码 51
+iris_sepal_length = np.loadtxt("../data/iris_sepal_length.csv", 
+    delimiter=",")  #读取文件
+print('花萼长度表为：',iris_sepal_length)
+
+iris_sepal_length.sort()  #对数据进行排序
+print('排序后的花萼长度表为：',iris_sepal_length)
+
+#去除重复值
+print('去重后的花萼长度表为：',np.unique(iris_sepal_length))
+
+print('花萼长度表的总和为：',np.sum(iris_sepal_length))  #计算数组总和
+
+#计算所有元素的累计和
+print('花萼长度表的累计和为：',np.cumsum(iris_sepal_length))
+
+print('花萼长度表的均值为：',np.mean(iris_sepal_length))  #计算数组均值
+
+#计算数组标准差
+print('花萼长度表的标准差为：',np.std(iris_sepal_length))
+
+print('花萼长度表的方差为：',np.var(iris_sepal_length))  #计算数组方差
+print('花萼长度表的最小值为：',np.min(iris_sepal_length))  #计算最小值
+print('花萼长度表的最大值为：',np.max(iris_sepal_length))  #计算最大值
+

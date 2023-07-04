@@ -1,0 +1,64 @@
+20230629 
+
+使用 爬虫技术 实现 数据抓取
+
+0. 总纲
+    请求、响应、解析、定位、提取
+    可见即可得：可见-浏览器内、可得-可抓取
+
+1. 基础知识
+    0. 浏览器分类 
+        基于浏览器内核(渲染引擎)分类
+        发送请求、获取响应并渲染显示
+    1. 数据抓取-爬虫实现
+      ：数据抓取 ： 爬虫技术
+        数据源：外部、内部
+        外部：
+            数据抓取/爬取
+            公开、半公开(登录/验证码)
+            网页数据
+        内部：
+            数据读取
+            业务数据、行为数据
+            ---
+            数据库、文件(log\csv\json\txt\xls)
+      -- Edge
+        Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.58
+        
+        对于抓取到的网页数据(html txt)解析、定位、提取
+        1. 发送请求 
+            带着 请求头 的信息 (useragent...)
+        2. 获取响应 
+            html txt (目前:静态数据)
+        3. 解析、定位、提取
+          解析：
+            通过程序代码完成解析
+          定位：
+            基于 css selector 的定位
+                定位到 1/n 元素
+            #\31 5261744 > header > a.name
+            a.name
+            --------
+            //*[@id="15261744"]/header/a[2]
+                //a[@clas="name"]
+            /html/body/div[3]/div[1]/div/div[1]/div[1]/div[1]/div/header/a[2]
+            ====
+            #\31 5258609
+            div.main.review-item
+          提取：
+            标签体的内容值
+            标签属性的值
+2. 实例(Python & Java)
+  Python
+    1. urllib 内置模块完成 页面爬取
+        https://docs.python.org/zh-cn/3/library/urllib.html
+        1. get_baidu_htmltxt 
+作业： 
+1. 完成 imdb 封面视频 下载
+    改写为 Python 大文件分块 下载的模式实现
+2. 预习：
+    1- requests/beautifulSoup4/lxml 
+    2- Scrapy
+    3- JSoup
+    4- Webmagic
+            

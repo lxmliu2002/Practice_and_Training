@@ -1,0 +1,274 @@
+
+人工智能相关领域顶会
+说明：
+    AI是很大的领域，包括智能体与多智能体、问题求解、搜索、规划、决策、感知通讯、不确定性、还有机器学习。
+    在2010年之后，神经网络深度学习、以及最近强化学习的爆发，确切的说，进入了AI的学习及其应用领域，主要包括CV、NLP、DM。
+    参考： https://zhuanlan.zhihu.com/p/51749414
+    为什么是会议？
+        会议论文不被SCI检索，因审稿周期短，计算机领域的研究更新速度快。
+        大部分最新的工作都首先发表在顶级会议上，反映了当前的最新研究方向和最新方法。
+        会议鄙视链，顶会>CCF推荐会议>普通会议。
+      参考： 
+        计算机专业的研究生如何找文献
+            https://zhuanlan.zhihu.com/p/99004830
+        https://www.myhuiban.com/home
+0. 计算机学术会议及期刊推荐列表
+    四大机构：CCF，清华，Core，Qualis
+    参考： http://numbda.cs.tsinghua.edu.cn/~yuwj/
+    1. CCF 推荐国际学术会议和期刊目录（国内，只需要知道这一个就可以）
+        https://www.ccf.org.cn/Academic_Evaluation/By_category/
+    2. TH-CPL 清华大学计算机学科群 推荐学术会议和期刊列表（TH-CPL）
+        http://numbda.cs.tsinghua.edu.cn/~yuwj/TH-CPL.pdf
+        https://www.zhihu.com/question/344122516
+    3. CORE （Computing Research & Education）Ranking会议排名
+        一种国际上较为认可的对计算领域会议的评估，由澳大利亚CORE执行委员会管理，定期对会议进行重新评估和微调。
+        https://www.core.edu.au/
+        https://www.core.edu.au/conference-portal
+    4. Qualis
+        巴西高等教育人才促进协调会发布的评级指标。
+        https://www.gov.br/capes/pt-br
+        https://www.gov.br/capes/pt-br/assuntos/noticias/capes-divulga-lista-preliminar-do-qualis
+    汇总：会议之眼
+        https://blog.csdn.net/ConferenceEye/article/details/103186055
+        https://www.conferenceeye.cn/#/layout/home
+
+1. 人工智能领域 
+    旗舰会议：领域很大很多，涵盖AI各个分野，2个。
+    1. IJCAI （国际人工智能联合会议 International Joint Conference on Artificial Intelligence）
+        官网：https://www.ijcai.org/
+        历年文章：https://dblp.uni-trier.de/db/conf/ijcai/index.html
+        参考：
+            IJCAI/AAAI 的真实水平到底如何？
+                https://www.zhihu.com/question/323355908
+        简单介绍：
+            人工智能领域中最主要的学术会议之一，中国计算机学会（CCF）推荐为计算机学科领域A类国际会议。
+            原为单数年召开，自2016年起改为每年召开。IJCAI通常提前四年确定大会主席、程序主席及大会选址。
+
+    2. AAAI （人工智能促进协会 Association for the Advancement of Artificial Intelligence）
+        官网：https://aaai.org/
+        历年文章：https://dblp.uni-trier.de/db/conf/aaai/index.html
+        参考：https://zhuanlan.zhihu.com/p/345086712
+              https://www.zhihu.com/question/505598938
+        简单介绍：
+            AAAI是人工智能领域的主要学术组织之一。
+            该组织成立于1979年，原名“美国人工智能协会(American Association for Artificial Intelligence)”，并于2007年更名为“人工智能促进协会（AAAI）”。它在全球拥有超过6000名成员。汇集了全球最顶尖的人工智能领域专家学者，一直是人工智能界的研究风向标，在学术界久负盛名。
+            在其早期历史中，该组织由计算机科学领域的著名人物领导，如Allen Newell，Edward Feigenbaum，Marvin Minsky和John McCarthy。
+            AAAI主办的“AAAI人工智能会议”，被认为是人工智能领域的顶级会议之一。
+            原先定位于最传统的人工智能领域，近几年收录的范围比较广
+                也会包含一些NLP领域论文
+
+2. 机器学习/深度学习领域
+    ML三大顶会，你觉得哪个最好？
+        https://www.zhihu.com/question/422296229
+    1. ICML（国际机器学习大会 International Conference on Machine Learning）
+        官网：https://icml.cc/
+        历年文章：https://dblp.uni-trier.de/db/conf/aaai/index.html
+        参考：https://www.zhihu.com/question/422296229
+        简单介绍：
+            由国际机器学习学会（IMLS）主办的机器学习国际顶级会议。 
+            ICML每年夏季（7~8月）召开，是机器学习和人工智能研究领域的重要舞台和风向标。 
+            ICML与NeurIPS和ICLR一起被评为机器学习和人工智能研究领域具有重大影响的三大主要会议之一。 
+    2. NIPS（神经信息处理系统大会（NeurIPS），Conference on Neural Information Processing Systems）
+        官网：https://nips.cc/
+            改名为：https://neurips.cc/
+        历年文章：https://dblp.uni-trier.de/db/conf/nips/index.html
+        参考： https://www.zhihu.com/topic/20033808/hot
+        简单介绍： 
+           机器学习和计算神经科学相关的学术会议，是神经计算方面最好的会议之一。
+           该会议固定在每年的12月举行,由 NIPS 基金会主办。是机器学习领域的顶级会议。
+    3. ICLR（国际学习表征会议 International Conference on Learning Representations）
+        官网：https://iclr.cc/
+        历年文章：https://iclr.cc/Conferences/2023
+            CCF未收录，但是清华定为A类
+        参考： https://www.zhihu.com/question/47940549
+        简单介绍：
+            由位列深度学习三大巨头之二的 Yoshua Bengio 和 Yann LeCun 于2013 年牵头创办。
+            「深度学习的顶级会议」
+    ---还没被污染的....
+    4. UAI （人工智能中的不确定性 会议 Conference on Uncertainty in Artificial Intelligence）
+        官网：https://auai.org/ 
+        历年文章：https://dblp.uni-trier.de/db/conf/uai/index.html
+        参考：https://www.zhihu.com/question/443160562
+        简单介绍： 
+            涉及表示\推理\学习等很多方面，AUAI(Association of UAI) 主办, 每年开。
+            机器学习顶级会议，会议比较小。
+            （个人看法）从论文质量上讲碾压AAAI、IJCAI。
+            （网络看法）谢ccf不杀之恩、保护性b会，以前CCF是c会
+    5. AISTATS（International Conference on Artificial Intelligence and Statistics）
+        官网：https://aistats.org/
+        历年文章：https://dblp.uni-trier.de/db/conf/aistats/index.html
+        参考：https://www.zhihu.com/question/486948020
+        简单介绍：
+            偏统计、偏理论、CCF的c会
+    6. COLT(Annual Conference on Computational Learning Theory)
+        官网：https://www.learningtheory.org/
+        历年文章：https://dblp.uni-trier.de/db/conf/colt/index.html
+        参考：
+            COLT和AAAI哪个水平更高呀？
+                https://www.zhihu.com/question/470699556
+            发Conference on Learning Theory (COLT)有多难？
+                https://www.zhihu.com/question/295084174
+        简单介绍：
+            机器学习当之无愧的最好的顶会/老牌神会
+            COLT上随便一篇文章做个应用就可以中CVPR，CVPR去掉一个contribution能中AAAI。
+            最难发的会议，没有之一
+            taste有高低之分。taste基本决定了一个人成就的上限。
+            必须苦心钻研很多年，并且达到高超的理论水平，这是一个能发NIPS和ICML的普通PhD无可比拟的，
+            所以不用去和NIPS或者ICML争哪个更好，不是一个“好”字可以区分的，这完全是境界上的差别
+            发COLT的水平基本和发FOCS以及STOC的持平，FOCS和STOC国内基本都是清华叉院发的......
+          稍差一点于：算法领域的三大顶级学术会议（STOC、FOCS、SODA）
+            ​SODA，全称ACM-SIAM Symposium on Discrete Algorithms。SODA是由计算机协会（ACM）和工业与应用数学学会（SIAM）两大国际学术组织联合主办，
+            
+            STOC，ACM计算理论年会
+            FOCS（IEEE Annual Symposium on Foundations of Computer Science），由IEEE计算机学会的计算机数学基础专委会提供资助
+
+3. 计算机视觉领域 
+    计算机视觉会议（CVPR，ECCV，ICCV，NIPS，AAAI，ICLR等）
+        https://blog.csdn.net/ji_meng/article/details/124323200
+    带你了解ICCV、ECCV、CVPR三大国际会议
+        https://blog.csdn.net/m0_46988935/article/details/109378535
+    1. CVPR（IEEE国际计算机视觉与模式识别会议 EEE/CVF Conference on Computer Vision and Pattern Recognition）
+        官网：https://openaccess.thecvf.com/menu
+        历年文章：https://dblp.uni-trier.de/db/conf/cvpr/index.html
+            https://cvpr2022.thecvf.com/
+        参考： 
+            【杂谈】你真的了解CVPR吗？
+                https://zhuanlan.zhihu.com/p/46426177
+            https://en.wikipedia.org/wiki/Conference_on_Computer_Vision_and_Pattern_Recognition
+        简单介绍：
+            是由IEEE举办的计算机视觉和模式识别领域的顶级A类会议
+            大部分时间CVPR每年大概300篇论文，12年以后逐年增加，18年接近1000篇文章，火热程度可见一斑。
+            CVPR最初由IEEE计算机协会主办，2012年之后由IEEE计算机协会和CVF计算机视觉基金会联合主办。
+    2. ICCV（国际计算机视觉会议是 International Conference on Computer Vision）
+        官网：https://ieeexplore.ieee.org/xpl/conhome/1000149/all-proceedings
+        历年文章：https://dblp.uni-trier.de/db/conf/iccv/index.html
+        参考： 
+        简单介绍：
+            IEEE主办，持续4到5天，第1天由特定领域的顶尖专家进行指导讲座，接下来是技术会议和海报展示。
+            每两年召开一次，奇数年。
+    3. ECCV（欧洲计算机视觉国际会议 European Conference on Computer Vision）
+        官网：https://link.springer.com/conference/eccv
+        历年文章：https://dblp.uni-trier.de/db/conf/eccv/index.html
+        参考： 
+        简单介绍：
+            每两年召开一次，偶数年。
+
+
+4. 自然语言处理领域
+    ACL/EMNLP/NAACL算是比较公认的NLP三大会
+    NLP领域国际顶会（ACL/EMNLP/NAACLl等）的难度如何？
+        https://www.zhihu.com/question/266242639
+    NLP领域有哪些国际顶级会议？
+        https://zhuanlan.zhihu.com/p/140491821
+    1. ACL（Annual Meeting of the Association for Computational Linguistics）
+        官网：https://www.aclweb.org/portal/
+        历年文章：https://dblp.uni-trier.de/db/conf/acl/index.html
+        参考：https://www.zhihu.com/question/266242639
+        简单介绍： 
+            计算语言学协会是处理自然语言和计算问题的国际专业协会，成立于1962年，最初名为机器翻译和计算语言协会，于1968年更名为计算语言学协会。
+    2. EMNLP（Conference on Empirical Methods in Natural Language Processing）
+        官网：https://www.aclweb.org/portal/emnlp
+        历年文章：https://dblp.uni-trier.de/db/conf/emnlp/index.html
+        参考： 
+            来，一起唠个EMNLP会议的嗑
+                https://zhuanlan.zhihu.com/p/263756436
+        简单介绍：
+            ACL旗下SIGDAT组织
+    3. NAACL（North American Chapter of the Association for Computational Linguistics）
+        官网：https://naacl.org/
+        历年文章：https://dblp.uni-trier.de/db/conf/naacl/index.html
+        参考： 
+            虽然ccf评级是C类，NAACL算顶会吗？
+                https://www.zhihu.com/question/302591045
+        简单介绍：
+            NLP领域ACL是公认的语言处理的顶会。
+            EMNLP是偏机器学习的NLP排名第二的会议。
+            NAACL和ACL类似，NACAL是ACL的北美分会，可以理解为弱化版本的ACL。
+    4. COLING（International Conference on Computational Linguistics）
+        官网：https://aclanthology.org/venues/coling/
+        历年文章：https://dblp.uni-trier.de/db/conf/coling/index.html
+        参考：
+        简单介绍：
+            由老牌NLP/CL学术组织ICCL（The International Committee on Computational Linguistics)）组织的，从1965年开始，每两年举办一次。
+            ACL > EMNLP > NAACL > COLING = EACL > AACL = 三大会质量高的workshop > NLPCC = CCL
+    以上4个是最值得关注的NLP领域顶会
+
+5. 数据挖掘领域
+    数据挖掘、机器学习领域有哪些知名的期刊或会议？
+        https://www.zhihu.com/question/38424588
+    1. KDD（ACM SIGKDD Conference on Knowledge Discovery and Data Mining）
+        官网：https://www.kdd.org/
+        历年文章：https://dblp.uni-trier.de/db/conf/kdd/index.html
+        参考： 
+            KDD 和其他方向的顶级会议相比（如 NIPS，CVPR，ICML，ACL），是一个什么水平的会议？
+                https://www.zhihu.com/question/361775536
+        简单介绍：
+            数据挖掘的顶级会议、偏应用
+            在数据挖掘领域，KDD是当之无愧的最好会议，其次就是ICDM和SDM两个。
+            简称为SIGKDD或KDD， 是从AAAI会议中的KDD研讨会发展而来，被广泛认为是知识发现和数据挖掘领域最有影响力的会议，也是所有计算机科学领域中论文录取率最低的会议之一。
+    2. WSDM（国际互联网检索与数据挖掘会议 ACM International Conference on Web Search and Data Mining）
+        官网：http://www.wikicfp.com/cfp/program?id=3158
+        历年文章：https://dblp.uni-trier.de/db/conf/wsdm/index.html
+        简单介绍：
+            SIGIR、SIGKDD、SIGMOD和SIGWEB四个专委会协调筹办，是一个有关搜索和数据挖掘的互联网启发式研究的主要会议之一，每年举办一届。WSDM是信息检索与数据挖掘的顶级会议。在互联网搜索、数据挖掘领域享有较高学术声誉，被中国计算机协会推荐为B类会议，在清华大学最新发布的新版计算机学科推荐学术会议和期刊列表中，WSDM已被列为准A类学术会议。
+    3. SDM（SIAM International Conference on Data Mining） 
+        官网：https://archive.siam.org/meetings/archives.php
+        历年文章：https://dblp.uni-trier.de/db/conf/sdm/index.html
+        简单介绍：
+            年底唯一能投的不错的数据挖掘会议、偏理论
+    4. ICDM（IEEE International Conference on Data Mining）
+        官网：https://icdm.zhonghuapu.com/
+        历年文章：https://dblp.uni-trier.de/db/conf/icdm/index.html
+        简单介绍：
+            KDD被拒稿的几乎都会转投这个会议
+
+6. Arxiv （音同archive，读为：啊儿凯武）
+    https://arxiv.org/
+    如何订阅邮件：
+        https://info.arxiv.org/help/subscribe.html
+    养成订阅并每天看下的习惯
+        了解论文的 Title、Abstract，至少知道当前最新的内容
+    
+
+7. 国内的会议：
+    NLP&CC ：自然语言处理与中文计算
+        计算机学会中文信息技术专委会组织
+        国内比较重要的 NLP/CL 学术会议
+        可以适当关注会议主席/审稿人，并可了解国内做NLP领域的机构、学者、专家。
+        越来越重要，目前CCF C类
+    其他一些国内的研讨会：
+        全国计算语言学术会议（CCL）
+        中国自然语言处理青年学者研讨会（YSSNLP）
+        全国信息检索学术会议（CCIR）
+        全国机器翻译研讨会（CWMT）
+
+
+每个会议的构成：
+    Tutorial Session
+        一些大佬们集中起来演讲一个课题，通常是介绍自己的研究，有视频有PPT，内容丰富。
+        针对某个领域的全面的讲解。
+
+    Workshops
+        附属于主会的一些研究热点、前沿方向的专题研讨会，而且是独立审稿的。
+        论文质量比主会总体低，但最大价值，是会搞一些比赛以及发布一些数据集，其实这个比会议论文有用多了。
+
+    Paper Session
+        所有的 Paper
+
+
+
+整体参考：
+    顶级会议及期刊
+        https://www.cnblogs.com/taoyuyeit/p/11245563.html
+
+
+召开时间
+ICML（1/2月）, NeurIPS（5月）, ICLR（9/10月）一年三等分。
+基本上除了那些风格极其明显的工作（比如纯理论去找COLT，太应用了可能考虑ACL或CVPR）。
+ICLR后是AISTATS（10月）。UAI（偏统计）距离ICML太近了。
+
+
+会议接收率
+https://www.openresearch.org/
+
+如何判断是最新的成果：CS领域，基于发表时间判断（一般最多3年内）

@@ -1,0 +1,137 @@
+20230630 Python 完成数据抓取
+
+0. 回顾
+    1- 请求、响应、解析、定位、提取
+    2- by urllib 
+        --导入所需的 模块(urllib 内置模块)
+        1. uri (url):请求的资源
+        2. 封装请求
+            - 生成请求头
+            - uri/url
+        3. 基于封装的请求，发送并获取响应
+        4. 处理响应 
+            - 获取状态码
+            - 获取响应信息
+            - 获取所有的响应头，获取指定的响应头
+            - 获取具体的响应(text)
+    3- urllib 作用：
+        1. 借助 Python IO 完成远程二进制资源的下载
+        2. 发送请求、获取响应(html text)
+            尝试模拟请求数据发送
+
+1. 借助 Python 爬虫 3个库(第三方模块) 完成
+    0. 安装方法：
+        1- 在 IDE 中进行安装
+        2- 在线安装 
+            pip install package_name 
+            pip install -U package_name 
+        3- 离线安装 
+            - 下载 模块安装文件 
+                == pypi.org
+                    不太清楚： 看最近更新日期、发布历史
+                    download files 
+                        Built Distribution  
+                        *.whl
+                        关注 for Python 的 version 
+                        关注 cpu 版本
+                == lfd (强烈推荐)
+                    https://www.lfd.uci.edu/~gohlke/pythonlibs/
+                        Unofficial Windows Binaries for Python Extension Packages
+                        only for windows 
+                    关注： 
+                        关注 for Python 的 version 
+                        关注 cpu 版本
+            -- 安装 .whl 
+                下载： lxml‑4.9.0‑cp38‑cp38‑win_amd64.whl   (某个目录)
+                进入该目录下的 cmd 执行
+                    pip install lxml-4.9.0-cp38-cp38-win_amd64.whl
+    1. 定位
+        requests
+            https://requests.readthedocs.io/projects/cn/zh_CN/latest/user/quickstart.html
+            发送请求、获取响应(HTML TEXT)
+        beautifulsoup4
+            https://www.osgeo.cn/beautifulsoup/
+            解析 Soup 文档
+            定位 借助 css selector 定位 
+            提取 方法
+        lxml 
+            https://www.w3cschool.cn/lxml/
+            解析 XML 树状文档
+            定位 借助 XPath 定位 
+            提取 方法
+    2. reqeust 
+    3. beautifulsoup4
+        手工分析页面
+        提取：
+            借助 css selector 
+            作者名字 a.name 标签的 标签体内容值
+            作者主页url a.name 标签的 标签属性 href 的值
+            电影名字 a.subject-img > img 标签属性 title 的值
+            电影主页url a.subject-img 标签属性 href 的值
+            电影封面图片url a.subject-img > img 标签属性 src 的值
+          作业：
+            提取所有能提取的影评信息
+            建议：先获取所有的包含所有影评的 div，然后遍历 div，对每一个 div 获取能获取的所有信息
+        提取：
+            借助 css selector 
+            序号 span.pc_temp_num 
+            歌名 
+            歌手
+                div.pc_temp_songlist > ul > li > a
+                或者
+                a.pc_temp_songname title  
+                -间隔
+            时长 
+                第一个时长
+                #rankWrap > div.pc_temp_songlist > ul > li:nth-child(1) > span.pc_temp_tips_r > span
+                所有时长
+                #rankWrap > div.pc_temp_songlist > ul > li > span.pc_temp_tips_r > span
+                span.pc_temp_time
+            top 500
+                https://www.kugou.com/yy/rank/home/1-8888.html
+                https://www.kugou.com/yy/rank/home/2-8888.html
+                ....
+                https://www.kugou.com/yy/rank/home/23-8888.html
+    4. lxml 
+        douban book top250
+            lxml ==XPath
+            所有图书 --列表页 中信息
+                https://book.douban.com/top250?start= 0,250,25
+                每一本图书的 链接信息
+                #content > div > div.article > div > table:nth-child(42) > tbody > tr > td:nth-child(2) > div.pl2 > a
+                div.pl2 > a
+            具体图书 --详情页 中信息 
+                图书名称 //*[@id="wrapper"]/h1/span
+                图书作者 //*[@id="info"]/span[1]/a
+                         //*[@id="info"]/span[1]/a
+                         //*[@id="info"]/a[1]
+                图书作者 //*[@id="info"]//a
+                图书评分 //*[@id="interest_sectl"]/div/div[2]/strong
+
+2. 借助 Scrapy 爬虫框架实现爬取
+    1. Scrapy 
+        https://www.osgeo.cn/scrapy/index.html
+        填空题：
+            item.py 定义保存抓取到的数据的数据项类 --容器(暂时)
+            pipelines.py 用于爬取到的数据(封装到数据项中)的处理 --清洗、入库、输出
+            settings.py 用来配置爬虫的设置
+            spiders/xxxx.py (s), 用于爬取的爬虫文件
+    2. 创建 Srcapy 爬虫项目
+        0- 安装 scarpy 模块
+        1- 使用命令行
+            scrapy startproject film250
+        2- 在 PyCharm 中打开
+        
+    ----完成：
+        0- 声明数据项
+            items.py 
+        1- 完成 spider 
+        2- 完成 爬虫 
+            spiders/ 
+        3- 完成 piplines
+            输出到 csv 中
+            ....
+        4- 声明 流水线的流程
+            settings.py
+        5. 运行 
+            在 pycharm 中运行

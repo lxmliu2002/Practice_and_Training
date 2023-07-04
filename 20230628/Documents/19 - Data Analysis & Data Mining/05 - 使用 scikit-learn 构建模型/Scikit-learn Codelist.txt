@@ -1,0 +1,461 @@
+# -*- coding: utf-8 -*-
+
+###############################################################################
+#######################   1 使用sklearn转换器处理数据   #######################
+###############################################################################
+
+# 代码 1
+from sklearn.datasets import load_breast_cancer
+cancer = load_breast_cancer()##将数据集赋值给iris变量
+print('breast_cancer数据集的长度为：',len(cancer))
+print('breast_cancer数据集的类型为：',type(cancer))
+
+
+# 代码 2
+cancer_data = cancer['data']
+print('breast_cancer数据集的数据为：','\n',cancer_data)
+
+cancer_target = cancer['target'] ## 取出数据集的标签
+print('breast_cancer数据集的标签为：\n',cancer_target)
+
+cancer_names = cancer['feature_names'] ## 取出数据集的特征名
+print('breast_cancer数据集的特征名为：\n',cancer_names)
+
+cancer_desc = cancer['DESCR'] ## 取出数据集的描述信息
+print('breast_cancer数据集的描述信息为：\n',cancer_desc)
+
+
+# 代码 3
+print('原始数据集数据的形状为：',cancer_data.shape)
+print('原始数据集标签的形状为：',cancer_target.shape)
+
+from sklearn.model_selection import train_test_split
+cancer_data_train, cancer_data_test,\
+cancer_target_train, cancer_target_test = \
+train_test_split(cancer_data, cancer_target, 
+    test_size=0.2, random_state=42)
+print('训练集数据的形状为：',cancer_data_train.shape)
+print('训练集标签的形状为：',cancer_target_train.shape)
+print('测试集数据的形状为：',cancer_data_test.shape)
+print('测试集标签的形状为：',cancer_target_test.shape)
+
+
+
+# 代码 4
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+Scaler = MinMaxScaler().fit(cancer_data_train) ##生成规则
+##将规则应用于训练集
+cancer_trainScaler = Scaler.transform(cancer_data_train) 
+##将规则应用于测试集
+cancer_testScaler = Scaler.transform(cancer_data_test)
+print('离差标准化前训练集数据的最小值为：',np.min(cancer_data_train))
+print('离差标准化后训练集数据的最小值为：',np.min(cancer_trainScaler))
+print('离差标准化前训练集数据的最大值为：',np.max(cancer_data_train))
+print('离差标准化后训练集数据的最大值为：',np.max(cancer_trainScaler))
+print('离差标准化前测试集数据的最小值为：',np.min(cancer_data_test))
+print('离差标准化后测试集数据的最小值为：',np.min(cancer_testScaler))
+print('离差标准化前测试集数据的最大值为：',np.max(cancer_data_test))
+print('离差标准化后测试集数据的最大值为：',np.max(cancer_testScaler))
+
+
+
+# 代码 5
+from sklearn.decomposition import PCA
+pca_model = PCA(n_components=10).fit(cancer_trainScaler) ##生成规则
+cancer_trainPca = pca_model.transform(cancer_trainScaler) ##将规则应用于训练集
+cancer_testPca = pca_model.transform(cancer_testScaler) ##将规则应用于测试集
+print('PCA降维前训练集数据的形状为：',cancer_trainScaler.shape)
+print('PCA降维后训练集数据的形状为：',cancer_trainPca.shape)
+print('PCA降维前测试集数据的形状为：',cancer_testScaler.shape)
+print('PCA降维后测试集数据的形状为：',cancer_testPca.shape)
+
+
+###############################################################################
+#######################            任务实现             #######################
+###############################################################################
+
+# 代码 6
+from sklearn.datasets import load_boston
+boston = load_boston()
+boston_data = boston['data']
+boston_target = boston['target']
+boston_names = boston['feature_names']
+print('boston数据集数据的形状为：',boston_data.shape)
+print('boston数据集标签的形状为：',boston_target.shape)
+print('boston数据集特征名的形状为：',boston_names.shape)
+
+
+# 代码 7
+from sklearn.model_selection import train_test_split
+boston_data_train, boston_data_test, \
+boston_target_train, boston_target_test = \
+train_test_split(boston_data, boston_target, 
+    test_size=0.2, random_state=42)
+print('训练集数据的形状为：',boston_data_train.shape)
+print('训练集标签的形状为：',boston_target_train.shape)
+print('测试集数据的形状为：',boston_data_test.shape)
+print('测试集标签的形状为：',boston_target_test.shape)
+
+
+
+
+# 代码 8
+from sklearn.preprocessing import StandardScaler
+stdScale = StandardScaler().fit(boston_data_train) ## 生成规则
+## 将规则应用于训练集
+boston_trainScaler = stdScale.transform(boston_data_train) 
+## 将规则应用于测试集
+boston_testScaler = stdScale.transform(boston_data_test)
+print('标准差标准化后训练集数据的方差为：',np.var(boston_trainScaler))
+print('标准差标准化后训练集数据的均值为：',
+    np.mean(boston_trainScaler))
+print('标准差标准化后测试集数据的方差为：',np.var(boston_testScaler))
+print('标准差标准化后测试集数据的均值为：',np.mean(boston_testScaler))
+
+
+
+# 代码 9
+from sklearn.decomposition import PCA
+pca = PCA(n_components=5).fit(boston_trainScaler) ## 生成规则
+## 将规则应用于训练集
+boston_trainPca = pca.transform(boston_trainScaler) 
+## 将规则应用于测试集
+boston_testPca = pca.transform(boston_testScaler)
+print('降维后boston数据集数据测试集的形状为：',boston_trainPca.shape)
+print('降维后boston数据集数据训练集的形状为：',boston_testPca.shape)
+
+
+###############################################################################
+#######################      2 构建并评价聚类模型       #######################
+###############################################################################
+
+# 代码 10
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.cluster import KMeans
+iris = load_iris()
+iris_data = iris['data'] ##提取数据集中的特征
+iris_target = iris['target'] ## 提取数据集中的标签
+iris_names = iris['feature_names'] ### 提取特征名
+scale = MinMaxScaler().fit(iris_data)## 训练规则
+iris_dataScale = scale.transform(iris_data) ## 应用规则
+kmeans = KMeans(n_clusters = 3,
+    random_state=123).fit(iris_dataScale) ##构建并训练模型
+print('构建的K-Means模型为：\n',kmeans)
+
+result = kmeans.predict([[1.5,1.5,1.5,1.5]])
+print('花瓣花萼长度宽度全为1.5的鸢尾花预测类别为：', result[0])
+
+
+# 代码 11
+import pandas as pd
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+##使用TSNE进行数据降维,降成两维
+tsne = TSNE(n_components=2,init='random',
+    random_state=177).fit(iris_data)
+df=pd.DataFrame(tsne.embedding_) ##将原始数据转换为DataFrame
+df['labels'] = kmeans.labels_ ##将聚类结果存储进df数据表
+##提取不同标签的数据
+df1 = df[df['labels']==0]
+df2 = df[df['labels']==1] 
+df3 = df[df['labels']==2] 
+## 绘制图形
+fig = plt.figure(figsize=(9,6)) ##设定空白画布，并制定大小
+##用不同的颜色表示不同数据
+plt.plot(df1[0],df1[1],'bo',df2[0],df2[1],'r*',
+    df3[0],df3[1],'gD')
+plt.savefig('../tmp/聚类结果.png') 
+plt.show() ##显示图片
+
+
+
+# 代码 12
+from sklearn.metrics import fowlkes_mallows_score
+for i in range(2,7):
+    ##构建并训练模型
+    kmeans = KMeans(n_clusters = i,random_state=123).fit(iris_data)
+    score = fowlkes_mallows_score(iris_target,kmeans.labels_)
+    print('iris数据聚%d类FMI评价分值为：%f' %(i,score))
+
+
+
+# 代码 13
+from sklearn.metrics import silhouette_score
+import matplotlib.pyplot as plt
+silhouettteScore = []
+for i in range(2,15):
+    ##构建并训练模型
+    kmeans = KMeans(n_clusters = i,random_state=123).fit(iris_data)
+    score = silhouette_score(iris_data,kmeans.labels_)
+    silhouettteScore.append(score)
+plt.figure(figsize=(10,6))
+plt.plot(range(2,15),silhouettteScore,linewidth=1.5, linestyle="-")
+plt.show()
+
+
+
+# 代码 14
+from sklearn.metrics import calinski_harabaz_score
+for i in range(2,7):
+    ##构建并训练模型
+    kmeans = KMeans(n_clusters = i,random_state=123).fit(iris_data)
+    score = calinski_harabaz_score(iris_data,kmeans.labels_)
+    print('iris数据聚%d类calinski_harabaz指数为：%f'%(i,score))
+
+
+
+###############################################################################
+#######################            任务实现             #######################
+###############################################################################
+
+# 代码 15
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+seeds = pd.read_csv('../data/seeds_dataset.txt',sep = '\t')
+print('数据集形状为：', seeds.shape)
+## 处理数据
+seeds_data = seeds.iloc[:,:7].values
+seeds_target = seeds.iloc[:,7].values
+sees_names = seeds.columns[:7]
+stdScale = StandardScaler().fit(seeds_data)
+seeds_dataScale = stdScale.transform(seeds_data)
+##构建并训练模型
+kmeans = KMeans(n_clusters = 3,random_state=42).fit(seeds_data)
+print('构建的KM-eans模型为：\n',kmeans)
+
+
+
+# 代码 16
+from sklearn.metrics import calinski_harabaz_score
+for i in range(2,7):
+    ##构建并训练模型
+    kmeans = KMeans(n_clusters = i,random_state=12).fit(seeds_data)
+    score = calinski_harabaz_score(seeds_data,kmeans.labels_)
+    print('seeds数据聚%d类calinski_harabaz指数为：%f'%(i,score))
+
+
+###############################################################################
+#######################      3 构建并评价分类模型       #######################
+###############################################################################
+
+# 代码 17
+## 加载所需的函数,
+import numpy as np
+from sklearn.datasets import load_breast_cancer
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+cancer = load_breast_cancer()
+cancer_data = cancer['data']
+cancer_target = cancer['target']
+cancer_names = cancer['feature_names']
+## 将数据划分为训练集测试集
+cancer_data_train,cancer_data_test, \
+cancer_target_train,cancer_target_test = \
+train_test_split(cancer_data,cancer_target,
+      test_size = 0.2,random_state = 22)
+## 数据标准化
+stdScaler = StandardScaler().fit(cancer_data_train)
+cancer_trainStd = stdScaler.transform(cancer_data_train)
+cancer_testStd = stdScaler.transform(cancer_data_test)
+## 建立SVM模型
+svm = SVC().fit(cancer_trainStd,cancer_target_train)
+print('建立的SVM模型为：\n',svm)
+
+
+## 预测训练集结果
+cancer_target_pred = svm.predict(cancer_testStd)
+print('预测前20个结果为：\n',cancer_target_pred[:20])
+
+
+# 代码 18
+## 求出预测和真实一样的数目
+true = np.sum(cancer_target_pred == cancer_target_test )
+print('预测对的结果数目为：', true)
+print('预测错的的结果数目为：', cancer_target_test.shape[0]-true)
+print('预测结果准确率为：', true/cancer_target_test.shape[0])
+
+
+
+# 代码 19
+from sklearn.metrics import accuracy_score,precision_score, \
+recall_score,f1_score,cohen_kappa_score
+print('使用SVM预测breast_cancer数据的准确率为：',
+      accuracy_score(cancer_target_test,cancer_target_pred))
+print('使用SVM预测breast_cancer数据的精确率为：',
+      precision_score(cancer_target_test,cancer_target_pred))
+print('使用SVM预测breast_cancer数据的召回率为：',
+      recall_score(cancer_target_test,cancer_target_pred))
+print('使用SVM预测breast_cancer数据的F1值为：',
+      f1_score(cancer_target_test,cancer_target_pred))
+print('使用SVM预测breast_cancer数据的Cohen’s Kappa系数为：',
+      cohen_kappa_score(cancer_target_test,cancer_target_pred))
+
+
+
+# 代码 20
+from sklearn.metrics import classification_report
+print('使用SVM预测iris数据的分类报告为：','\n',
+      classification_report(cancer_target_test,
+            cancer_target_pred))
+
+
+
+# 代码 21
+from sklearn.metrics import roc_curve
+import matplotlib.pyplot as plt
+## 求出ROC曲线的x轴和y轴
+fpr, tpr, thresholds = \
+roc_curve(cancer_target_test,cancer_target_pred)
+plt.figure(figsize=(10,6))
+plt.xlim(0,1) ##设定x轴的范围
+plt.ylim(0.0,1.1) ## 设定y轴的范围
+plt.xlabel('False Postive Rate')
+plt.ylabel('True Postive Rate')
+plt.plot(fpr,tpr,linewidth=2, linestyle="-",color='red')
+plt.show()
+
+
+
+
+###############################################################################
+#######################           任务实现             #######################
+###############################################################################
+
+# 代码 22
+import pandas as pd
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+abalone = pd.read_csv('../data/abalone.data',sep=',')
+## 将数据和标签拆开
+abalone_data = abalone.iloc[:,:8]
+abalone_target = abalone.iloc[:,8]
+## 连续型特征离散化
+sex = pd.get_dummies(abalone_data['sex'])
+abalone_data = pd.concat([abalone_data,sex],axis = 1 )
+abalone_data.drop('sex',axis = 1,inplace = True)
+## 划分训练集，测试集
+abalone_train,abalone_test, \
+abalone_target_train,abalone_target_test = \
+train_test_split(abalone_data,abalone_target,
+      train_size = 0.8,random_state = 42) 
+## 标准化
+stdScaler = StandardScaler().fit(abalone_train)
+abalone_std_train = stdScaler.transform(abalone_train)
+abalone_std_test = stdScaler.transform(abalone_test)
+## 建模
+svm_abalone = SVC().fit(abalone_std_train,abalone_target_train)
+print('建立的SVM模型为：','\n',svm_abalone)
+
+
+
+# 代码 23
+abalone_target_pred = svm_abalone.predict(abalone_std_test)
+print('abalone数据集的SVM分类报告为：\n',
+      classification_report(abalone_target_test,abalone_target_pred))
+
+
+
+###############################################################################
+#######################     4. 构建并评价回归模型       #######################
+###############################################################################
+
+# 代码 24
+##加载所需函数
+from sklearn.linear_model import LinearRegression
+from sklearn.datasets import load_boston
+from sklearn.model_selection import train_test_split
+## 加载boston数据
+boston = load_boston()
+X = boston['data']
+y = boston['target']
+names = boston['feature_names']
+## 将数据划分为训练集测试集
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2,random_state=125)
+## 建立线性回归模型
+clf = LinearRegression().fit(X_train,y_train)
+print('建立的LinearRegression模型为：','\n',clf)
+
+## 预测训练集结果
+y_pred = clf.predict(X_test)
+print('预测前20个结果为：','\n',y_pred[:20])
+
+
+# 代码 25
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+rcParams['font.sans-serif'] = 'SimHei'
+fig = plt.figure(figsize=(10,6)) ##设定空白画布，并制定大小
+##用不同的颜色表示不同数据
+plt.plot(range(y_test.shape[0]),y_test,color="blue", linewidth=1.5, linestyle="-")
+plt.plot(range(y_test.shape[0]),y_pred,color="red", linewidth=1.5, linestyle="-.")
+plt.legend(['真实值','预测值'])
+plt.savefig('../tmp/聚类结果.png') 
+plt.show() ##显示图片
+
+
+
+# 代码 26
+from sklearn.metrics import explained_variance_score,\
+mean_absolute_error,\
+mean_squared_error,\
+median_absolute_error,r2_score
+print('Boston数据线性回归模型的平均绝对误差为：',
+     mean_absolute_error(y_test,y_pred))
+print('Boston数据线性回归模型的均方误差为：',
+     mean_squared_error(y_test,y_pred))
+print('Boston数据线性回归模型的中值绝对误差为：',
+     median_absolute_error(y_test,y_pred))
+print('Boston数据线性回归模型的可解释方差值为：',
+     explained_variance_score(y_test,y_pred))
+print('Boston数据线性回归模型的R方值为：',
+     r2_score(y_test,y_pred))
+
+
+
+###############################################################################
+#######################           任务实现             #######################
+###############################################################################
+
+# 代码 27
+import pandas as pd
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import train_test_split
+house = pd.read_csv('../data/cal_housing.data',sep=',')
+house_data = house.iloc[:,:-1]
+house_target = house.iloc[:,-1]
+house_names = ['longitude','latitude',
+    'housingMedianAge', 'totalRooms',
+    'totalBedrooms','population', 
+    'households', 'medianIncome']
+house_train,house_test,house_target_train,house_target_test = \
+train_test_split(house_data,house_target,
+    test_size = 0.2, random_state = 42)
+GBR_house = GradientBoostingRegressor().fit(house_train,house_target_train)
+print('建立的梯度提升回归模型为：','\n',GBR_house)
+
+
+
+# 代码 28
+house_target_pred = GBR_house.predict(house_test)
+from sklearn.metrics import explained_variance_score,\
+mean_absolute_error,\
+mean_squared_error,\
+median_absolute_error,r2_score
+print('california_housing数据梯度提升回归树模型的平均绝对误差为：',
+     mean_absolute_error(house_target_test,house_target_pred))
+print('california_housing数据梯度提升回归树模型的均方误差为：',
+     mean_squared_error(house_target_test,house_target_pred))
+print('california_housing数据梯度提升回归树模型的中值绝对误差为：',
+     median_absolute_error(house_target_test,house_target_pred))
+print('california_housing数据梯度提升回归树模型的可解释方差值为：',
+     explained_variance_score(house_target_test,
+        house_target_pred))
+print('california_housing数据梯度提升回归树模型的R方值为：',
+     r2_score(house_target_test,house_target_pred))
+

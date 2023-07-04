@@ -1,0 +1,290 @@
+0. 主要介绍
+    1. 检视项目开发流程
+    2. 数据库设计
+    
+1. 软件项目开发阶段
+    AxureRP\Visio\Project\PowerDesinger
+    MindManager
+    线框图、用例图、时序图
+    编码规范、git、maven
+    《人件》《人月神话》《最后期限》《构建之法 - 作者：邹欣》
+    
+2. 数据库设计 -- 数据库、数据表、约束 == 等等数据库中的命名对象
+    0. 理论：设计过程、设计原则
+        目的: 减少冗余、数据正确性
+        选取DB：*Oracle*、*MySQL*、MSSQLServer、DB2
+        设计过程：
+        逻辑设计：
+            识别实体、识别实体属性、识别实体间关系
+        物理设计：
+            建库、建表、建约束
+            **约束：
+                实体|域完整性：ID、check、default、between、唯一、not null
+                参照完整性：pk、fk、表级触发器
+                用户自定义完整性：存储过程、触发器
+    1. 步骤：
+    * 识别实体(及其属性), 识别关系, 使用工具表述(ER图\CDM\PDM), 形成数据库二维表, 规范化整理
+    * 建库、建表、建约束 ==>> 生成 SQL 脚本文件(.sql)
+        1. 识别实体， 描述实体(借助实体的直接属性)
+            需求分析-名词
+            实体名(属性, ....)
+                是自然属性，id不是自然属性
+            -? 大数据分析 ===画像|刻画 -> 预测|推荐
+            -? 特色功能
+        2. 确定实体间关系
+            1:1  1:n(n:1)  m:n
+            人-护照  班级-学生  图书-出版社  学生-选课|成绩-课程  图书-作者
+        == ER图 - Visio
+            方框-实体  椭圆-属性  菱形-关系
+        3. 实体&实体间关系 ==>> 数据表
+            1. 实体 -->> 实体表
+                实体表(自然属性 + 实体|域完整性) ==id属性+自然属性
+                -- 数据库设计规范
+                实体名称 - 名词单数
+                实体表名称 - tbl_实体名  |  T实体名   | 实体名词(遵循Pascal)复数
+                ===
+                属性名称 - 名词 
+                字段名称 - 可以和实体属性*同名&满足camel命名规范*或不同名
+                    - 字段类型 varchar\int\float|*double*\十进制Decimal(10, 2)
+                        日期  Date、DateTime、*Timestamp*
+                        ？图片
+                            二进制 - 头像
+                            varchar = 图片的文件名
+                                图床服务器
+                    + 主键
+                        单一主键
+                            自然主键(自然主键-业务主键、代理主键-无意义的整数值)
+                            *代理主键* UUID | identity ==每个表统一命名为id
+                        联合|复合主键
+            2. 实体间关系 -->> 关系表|现有实体表加属性 -参照完整性
+                1. 1:n
+                    Student(studNo, name, age, gender)
+                    Class(classNo, name)
+                    |
+                    V
+                    *1 - 从表添加主表的主键字段作为(从表)外键字段
+                    [从、]子、多
+                    Students(id, studNo, name, age, gender, classId)
+                    [主、]父、一
+                    Classes(id, classNo, name)
+                    Ext：
+                        1 = 添加一个外键约束
+                            外键约束表述数据表对应的实体之间的(1:n)关系
+                            ==ORMapping框架描述实体间的关联关系===
+                            实体之间的(1:n)关系也可以有其对应的实体类描述
+                            配置文件(MyBatis 使用映射配置文件实现实体之间的关系描述)
+                        2 = 外键约束 - DB本质
+                            1:n  一个唯一的字段和一个非唯一的字段 完成关联
+                    ==
+                        Presses(id, name, address)
+                        Books(id, name, price, isbn, pressId)
+                    2 - 借助关系表描述
+                    Students(id, studNo, name, age, gender)
+                    Classes(id, classNo, name)
+                    ---关系表 
+                    ClassAndStudent(classId, studentId) == 联合|复合主键
+                    -推荐-> ClassAndStudent(id, classId, studentId)
+                2. 1:1 
+                    People(name, gender, birthday)
+                    Passport(passportNum, expire)
+                    |
+                    V 
+                    *1 - 唯一字段做外键
+                    主 
+                    Peoples(id, name, gender, birthday, passportId-设置为唯一约束=唯一索引)
+                        1, zhangsan, nan, 1-1 2
+                        2, wangwu, nv, 3-3 null
+                        3, lisi, nv, 2-2  1
+                    从
+                    Passports(id, passportNum, expire)
+                        1, lisipassport, 20
+                        2, zhangsanpassport, 10
+                    2 - 主键做外键  两个表的id必须对应相等
+                    Peoples(id, name, gender, birthday)
+                    Passports(id, passportNum, expire)
+                    3 - 关系表 -- 两个对应实体的主键 
+                    PeopleAndPassport(peopleId, passportId) - 联合主键&&每个字段均为唯一(索引)字段
+                3. m:n 
+                    Book(name, price, isbn)
+                    Author(name, gender)
+                    |
+                    V 
+                    *1 - 借助关系表描述, 将一个多对多， 变成两个一对多
+                    Books(id, name, price, isbn)
+                    Authors(id, name, gender)
+                    ---纯粹关系表
+                    BookAndAuthor(bookId, authorId) == 两个多实体中的主键字段， 联合主键 
+                        ==  1, 1
+                            1, 2
+                            1, 3
+                            2, 2
+                            3, 2
+                            4, 3
+                    ----
+                    Students(id, name, age)
+                    Courses(id, name)
+                    :选课 (studentId, courseId) === 纯粹关系表
+                        -推荐->(id, studentId, courseId)
+                    :成绩 (studentId, courseId, score) === 含有业务逻辑的关系表
+                        -推荐->(id, studentId, courseId, score)
+                        
+        4. 规范化设计  DB NF  1 2 3 bc 4 5
+                理论 & 白话|通俗
+            0. 满足规范化的修改： 
+                拆表、加表、加字段
+            1. 1NF 
+                理论： 保证原子性，所有字段值都是不可分解的原子值。
+                    不可再分、保证原子性
+                白话： 要有主键， 建议通过添加|使用代理主键字段|属性 实现
+                结论：
+                    使用代理主键、命名为id
+                代理主键绝不仅仅是int&auto increment
+                代理主键的类型：一般使用第1种，但真的不是只有第一种。
+                实现代理键有几个常用的选择：
+                1. 使用数据库赋值。
+                大多数主要的数据库供应商--例如Oracle、Sybase以及Informix、MySQL、MSSQLServer--实现了被称为递增键的代理键策略。
+                基本理念是在数据库服务器中维护一个计数器，将当前值写入一个隐藏的系统表来维护一致性，并用于赋值一个新建的数据行。
+                每创建一行，计数器递增并将值作为该行的键值。
+                不同供应商的实现策略不同，有时候值在所有表之间都是唯一的，有时候只在单个表内部是唯一的，但是基本概念相同。
+                2. MAX() + 1。一个常用的策略是使用整数列，第一条记录从1开始，然后新行的值设置为该列的最大值加1，最大值用SQL函数MAX获得。
+                虽然这个方法简单，但是对于大表存在性能问题，而且它只能确保表内部的唯一键值。
+                3. 全局唯一标识符（UUIDs）,http://baike.baidu.com/view/1052579.htm。
+                GUIDs是128位值，来自以太网卡ID或等价的软件表示以及系统当前时间的哈希值。
+                该算法是由开放软件基金会(Open Software Foundation, OSF)定义的。
+                4. 全球唯一标识（GUIDs）。
+                GUIDs是微软扩展UUIDs后的标准，遵从相同的策略，如果存在以太网卡使用网卡ID，
+                如果不存在，使用软件ID与当前时间计算一个哈希值，确保在机器内部唯一。
+                5. 高低位策略。
+                它的基本思想是key-value实现，通常称为持久化对象标识符（POID）或者简称对象标识符（OID）。
+                分为两个逻辑部分：从指定来源获取的唯一HIGH值和应用自身分配的N为LOW值。每获取一个HIGH值，LOW值设置为0。
+                例如，应用请求一个HIGH值并被赋予1701。假设LOW值的位数N为4，那么赋予对象的POID将会由17010000、17010001、17010002等等
+                直到17019999组成。此时，再获取一个新的HIGH值，LOW值设置为0，再次重复。
+                如果另一个应用在之后立即请求了一个HIGH值，它将获得1702，而它创建的对象被赋予OIDs将会是17020000、17020001等等。
+                只要HIGH值唯一，所有的POID值将会唯一。
+                ** MySQL对UUID的支持：UUID()函数产生的值，并不适合作为InnoDB引擎表的主键。
+                    MySQL中可以有二类用于生成唯一值性质的工具：UUID()函数和自增序列。
+                        + 都可以实现生成唯一值的功能；
+                        + UUID是可以生成时间、空间上都独一无二的值；
+                          自增序列只能生成基于表内的唯一值，且需要搭配使其为唯一的主键或唯一索引；
+                        + 实现方式不一样，UUID是随机+规则组合而成的，而自增序列是控制一个值逐步增长的；
+                        + UUID产生的是字符串类型值，固定长度为：36个字符，
+                          自增序列产生的是整数类型值，长度由字段定义属性决定；
+                    MySQL 可以用uuid()语句来生成一个UUID：
+                        select uuid();
+                        或 select replace(uuid(), '-', '');
+                        直接在insert语句中插入UUID作主键的用法(简便)：
+                            insert into Price(id, Name) values(uuid(), 'zhangsan');
+                        replace(uuid(),'-','')   ---->将uuid()中的‘-’，去掉，即替换成空串；
+                        upper(replace(uuid(),'-',''))用于将字符转换为大写
+            2. 2NF 
+                理论： 消除非主键属性对主键的部分(函数)依赖
+                    消除部分依赖
+                白话： 主键要唯一
+                                        通过拆表、加表实现
+                (studentId, courseId, studentName, courseName, score)
+                1, 1, zhangsan, Java, 90
+                1, 2, zhangsan, HTML, 91
+                2, 1, lisi, Java, 92
+                2, 2, lisi, HTML, 93
+                规范化：
+                Students(id, name, ...)
+                Courses(id, name, ...)
+                Scores(id, studentId, courseId, score)
+                    1, 1, 1, 90
+                    2, 1, 2, 91
+                    3, 2, 1, 92
+                    4, 2, 2, 93
+            3. 3NF
+                理论： 消除传递依赖
+                白话： 最终数据库中数据表的规范：
+                    包含以下三种|类型字段
+                        1. 主键字段： id、单一、代理主键
+                        2. 实体的自然属性字段： 描述该表所代表的实体的属性的字段，和主键直接相关
+                        3. 外键字段：  表示关系的字段，描述和该表所对应实体关联的实体间的关系
+                                        通过拆表、加表实现
+                数据库中表的类型：
+                    实体表
+                                        关系表, 两种：
+                        单纯关系表：作者、图书、作者and图书
+                        含有数据意义的关系表：产品、订单、订单详情
+                Students(id, name, age, gender, deptname, deptAddress)
+                    1, zhangsan, 20 nan, 计算机学院, 10号楼
+                    2, 李四, 20 nan, 计算机学院, 10号楼
+                    3, wangwu, 20 nv, 机械学院, 101号楼
+                    4, zhaoliu, 20 nv, 机械学院, 101号楼
+                规范化：
+                Students(id, name, age, gender, deptId)
+                Depts(id, name, address)
+        ---??>?根据业务需求， 适当违反范式要求。 
+            讨论：
+                不一定严格遵循NF
+                    price、subPrice、totalPrice
+                是不是需要触发器
+                存储过程的作用
+                关系的创建--db？code？
+    演示：
+        1. DB 
+            bookshop
+            1. 识别实体 
+                Book(name, price, isbn, bookcover...) 
+                Press(name, address...)
+                Category(name)
+                Author(name, gender...)
+                Order(orderNum, orderTime, totalPrice, discount...)
+                Customer(name, age, gender, loginName, password, email, tel, regtime-timestamp...)
+                Address(address, zipecode, tel)
+            2. 识别关系
+                book -n:1- press
+                book -m:n- author
+                book -m:n- category
+                category(parent) -1:n- category(children)
+                book -m:n- order
+                order -n:1- Customer
+                order -n:1- address
+                customer -1:n- address
+            3. Tables
+                Books(id, name, isbn, price, cover, sellnum, discount, pressId)
+                Presses(id, name, address)
+                Categories(id, name, parentId)
+                BookAndCategory(id, bookId, categoryId)
+                Authors(id, name)
+                BookAndAuthor(id, isbn, authorId)
+                Orders(id, orderNum, orderstate, orderTime, totalPrice, discount, customerId, addressId)
+                OrderDetailses(id, orderId, bookId, num, price, subPrice)
+                Customers(id, name, age, gender, loginName, password, email, tel, regtime)
+                Customers(id, name, loginName, pwd)
+                CustomerDetailses(id, name, loginName, pwd, gender, birthday, age, salary, tel, email, habits, regtime)
+                Addresses(id, address, zipecode, tel, customerId)
+                Logs(id, user, ipaddress, opera)
+            4. 实体类 - 如何体现关联关系
+                数据库的关联关系借助主外键实现， 但是只能实现单向的关联关系
+                实体类体现关联关系， 可以体现双向的关联关系
+                com.bookshop.domain.po|vo
+                com.bookshop.entity
+                com.bookshop.model
+        命名规范
+        自行约定，兼顾习惯
+        数据库对象命名的规则
+            表、字段、主键、外键、触发器、存储过程
+        参考：
+            http://www.cnblogs.com/JimmyZhang/archive/2007/08/30/875504.html
+            http://www.cnblogs.com/smileyearn/articles/1779493.html
+        我们的约定：
+            表：名词，复数，首字符大大写，多个名词间使用and连接
+            字段：
+                id、name、其他满足camel命名规范
+                外键字段，前缀为对应实体的名字
+            主键：
+                主键字段名：id
+                主键约束名：pk_所在表名
+            外键：
+                外键字段：前缀为对应实体的名字，后接Id，如果：bookId
+                外键约束名：
+                    fk_外键所在的表名_外键引用的表名。
+                    因为外键所在的表为从表，所以可以写为 fk_从表名_主表名。            
+----
+IDE：IDEA
+作业：
+1. bookshop、bbs、project db
+2. pojo\po\vo\dto\dao
+3. 完成所有的实体类(含有双向关联关系描述)
