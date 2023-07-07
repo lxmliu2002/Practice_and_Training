@@ -1,0 +1,285 @@
+论坛数据库
+    (参考: http://www.cnblogs.com/cyq1162/archive/2011/04/10/2011433.html)
+0. 说明: 
+    该论坛数据库设计, 参考discuz项目中的论坛功能部分. 
+    只是简单的描述了前台功能需求涉及到的数据表. 
+    要仔细体会其中的各个数据表的关联关系, 以及在实际项目中的关联关系的特殊体现. 
+        比如: BBS_USER表中的LastTopicID字段和LastReplyID字段(并不仅是这一处)等类似情况. 
+1. 数据表:
+    1. 用户表 - BBS_User
+        序号 名称 	数据类型 	允许空值 	说明
+            1 	ID 	int 	N 	ID标识
+            2 	UserName 	nvarchar(50) 	N 	唯一值[用户名]
+            3 	NickName 	nvarchar(100) 	Y 	用于显示的昵称
+            4 	Password 	nvarchar(20) 	Y 	密码
+            5 	Email 	nvarchar(50) 	Y 	Email
+            6 	HeadUrl 	nvarchar(100) 	Y 	用户头像
+            7 	Introduction 	nvarchar(200) 	Y 	自我介绍
+            8 	Signature 	nvarchar(200) 	Y 	个性签名
+            9 	TopicCount 	int 	Y 	发帖数
+            10 ReplyCount 	int 	Y 	回复帖子数
+            11 LastTopicID 	int 	Y 	最后发帖ID, 对应一个主题
+            12 LastReplyID 	int 	Y 	最后回复帖ID, 对应一个回帖
+            13 CreatedOn 	timestamp 	Y 	创建时间
+    2. 在线用户表 - BBS_Online
+        序号 	名称 	数据类型 	允许空值 	说明
+            1 	ID 	int 	N 	ID标识
+            2 	SessionID 	nvarchar(100) 	Y 	用户SessionID, 唯一
+            3 	UserID 	int 	Y 	用户ID, 唯一
+            4 	LoginTime 	timestamp 	N 	登陆时间
+            5 	LastActiveTime 	timestamp 	Y 	最后活动时间
+            6 	IPAddress 	nvarchar(100) 	Y 	用户IP地址
+            7 	CreatedOn 	timestamp 	Y 	创建时间
+    3. 版块表 - BBS_Forum
+        序号 名称 	数据类型 	允许空值 	说明
+            1 	ID 	int 	N 	ID标识
+            2 	ParentID 	int 	Y 	父级ID
+            3 	Name 	nvarchar(50) 	Y 	版块名称
+            4 	SortOrder 	int 	Y 	数字排序
+            5 	Intro 	nvarchar(200) 	Y 	版块介绍
+            6 	Rule 	nvarchar(200) 	Y 	版规
+            7 	TopicCount 	int 	Y 	主题总计
+            8 	ReplyCount 	int 	Y 	回复总计(不计主题)
+            9  Depth 	int 	Y 	分类级别，根分类级别为1
+            10 LastTopicID 	int 	Y 	最后发表回复贴子对应的主题ID，或是主题ID, 对应一个主题
+            11 ImgUrl 	nvarchar(100) 	Y 	Logo图片路径
+            12 CreatedBy 	int 	Y 	创建者ID
+            13 CreatedOn 	timestamp 	Y 	创建时间 
+    4. 版块版主表 - BBS_Forum_Moderator
+        序号 名称 	数据类型 	允许空值 	说明
+            1 	ID 	int 	N 	ID标识    
+            2 	ForumID 	int 	N 	版块分类ID
+            3 	UserID 	int 	Y 	用户ID
+    5. 主题表 - BBS_Topic
+        序号 	名称 	数据类型 	允许空值 	说明
+            1 	ID 	int 	N 	ID标识
+            2 	ForumID 	int 	N 	版块分类ID
+            3 	Title 	nvarchar(100) 	Y 	标题
+            4 	Content 	nvarchar(255) 	Y 	内容
+            5 	UserID 	int 	Y 	用户ID
+            6 	Hits 	int 	Y 	访问总量
+            7 	ReplyCount 	int 	Y 	回复总计
+            8  ModifiedBy 	int 	Y 	最后编辑用户ID, 对应一个用户
+            9  ModifiedOn 	timestamp 	Y 	最后编辑时间
+            10 RepliedBy 	int 	Y 	最后回复用户ID, 对应一个用户
+            11 RepliedOn 	timestamp 	Y 	最后回复时间
+            12 IsClose 	bit 	Y 	是否关闭[关闭贴不给回复]
+            13 ImgUrl 	nvarchar(100) 	Y 	帖子展示图片.
+            14 CreatedOn 	timestamp 	Y 	创建时间
+    6. 回帖表 - BBS_Reply
+        序号 	名称 	数据类型 	允许空值 	说明
+            1 	ID 	int 	N 	ID标识
+            2 	TopicID 	int 	N 	主题ID
+            3 	Title 	nvarchar(100) 	Y 	标题
+            4 	Content 	nvarchar(255) 	Y 	回复内容
+            5 	UserID 	int 	Y 	回复用户ID
+            6 	ModifiedOn 	timestamp 	Y 	最后编辑时间
+            7 	CreatedOn 	timestamp 	Y 	创建时间
+    7. 操作日志表 - BBS_OperateLog
+        序号 	名称 	数据类型 	允许空值 	说明
+            1 	ID 	int 	N 	ID标识
+            2  UserID 	int 	Y 	用户ID
+            3  IPAddress 	nvarchar(100) 	Y 	用户IP地址
+            4  OperateDesc  nvarchar(200) 	Y 	操作描述
+2. 表间关系:  == 主要关系
+    1:1 
+        在线用户表 - BBS_Online : 用户表 - BBS_User
+    1:n 
+        版块表 - BBS_Forum : 版块表 - BBS_Forum
+        版块表 - BBS_Forum : 主题表 - BBS_Topic
+        用户表 - BBS_User : 主题表 - BBS_Topic
+        主题表 - BBS_Topic : 回帖表 - BBS_Reply
+        用户表 - BBS_User : 回帖表 - BBS_Reply
+    m:n 
+        版块表 - BBS_Forum : 用户表 - BBS_User
+        借助 纯粹关系表(版块版主表 - BBS_Forum_Moderator)体现 
+    此外: 
+        BBS_User : 
+            LastTopicID 	int 	Y 	最后发帖ID, 对应一个主题
+            LastReplyID 	int 	Y 	最后回复帖ID, 对应一个回帖
+        BBS_Forum :
+            LastTopicID 	int 	Y 	最后发表回复贴子对应的主题ID，或是主题ID, 对应一个主题
+            CreatedBy 	int 	Y 	创建者ID, 对应一个创建当前版块的用户
+        主题表 - BBS_Topic :
+            ModifiedBy 	int 	Y 	最后编辑用户ID, 对应一个用户
+            RepliedBy 	int 	Y 	最后回复用户ID, 对应一个用户
+3. SQL Script
+
+CREATE DATABASE mybbs;
+
+USE mybbs;
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for bbs_forum
+-- ----------------------------
+DROP TABLE IF EXISTS `bbs_forum`;
+CREATE TABLE `bbs_forum` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID标识',
+  `ParentId` int(10) unsigned DEFAULT NULL COMMENT '父级Id',
+  `Name` varchar(50) DEFAULT NULL COMMENT '版块名称',
+  `SortOrder` int(11) DEFAULT NULL COMMENT '数字排序',
+  `Intro` varchar(200) DEFAULT NULL COMMENT '版块介绍',
+  `Rule` varchar(200) DEFAULT NULL COMMENT '版规',
+  `TopicCount` int(11) DEFAULT NULL COMMENT '主题总计数量',
+  `ReplyCount` int(11) DEFAULT NULL COMMENT '回复帖子总计(不包含主题)',
+  `Depth` int(11) DEFAULT NULL COMMENT '分类级别，根分类级别为1',
+  `LastTopicId` int(10) unsigned DEFAULT NULL COMMENT '最后发表回复贴子对应的主题ID，或是主题ID',
+  `ImgUrl` varchar(100) DEFAULT NULL COMMENT 'Logo图片路径',
+  `CreatedBy` int(10) unsigned DEFAULT NULL COMMENT '创建者ID',
+  `CreatedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建者时间',
+  PRIMARY KEY (`id`),
+  KEY `Fk_Parent_Children` (`ParentId`),
+  KEY `Fk_Topic_Forum_LastTopic` (`LastTopicId`),
+  KEY `Fk_User_Forum_Created` (`CreatedBy`),
+  CONSTRAINT `Fk_Parent_Children` FOREIGN KEY (`ParentId`) REFERENCES `bbs_forum` (`id`),
+  CONSTRAINT `Fk_Topic_Forum_LastTopic` FOREIGN KEY (`LastTopicId`) REFERENCES `bbs_topic` (`id`),
+  CONSTRAINT `Fk_User_Forum_Created` FOREIGN KEY (`CreatedBy`) REFERENCES `bbs_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='版块表';
+
+-- ----------------------------
+-- Records of bbs_forum
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for bbs_forum_moderator
+-- ----------------------------
+DROP TABLE IF EXISTS `bbs_forum_moderator`;
+CREATE TABLE `bbs_forum_moderator` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID标识',
+  `ForumId` int(10) unsigned DEFAULT NULL COMMENT '版块ID',
+  `UserId` int(10) unsigned DEFAULT NULL COMMENT '用户ID',
+  PRIMARY KEY (`id`),
+  KEY `Fk_Forum_ForumModerator` (`ForumId`),
+  KEY `Fk_User_ForumModerator` (`UserId`),
+  CONSTRAINT `Fk_Forum_ForumModerator` FOREIGN KEY (`ForumId`) REFERENCES `bbs_forum` (`id`),
+  CONSTRAINT `Fk_User_ForumModerator` FOREIGN KEY (`UserId`) REFERENCES `bbs_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='版块版主表';
+
+-- ----------------------------
+-- Records of bbs_forum_moderator
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for bbs_online
+-- ----------------------------
+DROP TABLE IF EXISTS `bbs_online`;
+CREATE TABLE `bbs_online` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID标识',
+  `SessionId` varchar(100) DEFAULT NULL COMMENT '用户SessionID, 唯一',
+  `UserId` int(10) unsigned DEFAULT NULL COMMENT '用户ID, 唯一',
+  `LoginTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '登陆时间',
+  `LastActiveTime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '最后活动时间',
+  `IPAddress` varchar(100) DEFAULT NULL COMMENT '用户IP地址',
+  `CreatedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `Idx_SessionId` (`SessionId`),
+  UNIQUE KEY `Idx_UserId` (`UserId`),
+  CONSTRAINT `Fk_User_Online` FOREIGN KEY (`UserId`) REFERENCES `bbs_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='在线用户表';
+
+-- ----------------------------
+-- Records of bbs_online
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for bbs_operatelog
+-- ----------------------------
+DROP TABLE IF EXISTS `bbs_operatelog`;
+CREATE TABLE `bbs_operatelog` (
+  `id` varchar(10) NOT NULL,
+  `UserId` int(10) unsigned DEFAULT NULL,
+  `IPAddress` varchar(100) DEFAULT NULL,
+  `OperateDesc` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='操作日志表';
+
+-- ----------------------------
+-- Records of bbs_operatelog
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for bbs_reply
+-- ----------------------------
+DROP TABLE IF EXISTS `bbs_reply`;
+CREATE TABLE `bbs_reply` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID标识',
+  `TopicId` int(10) unsigned DEFAULT NULL COMMENT '主题Id',
+  `Title` varchar(100) DEFAULT NULL COMMENT '标题',
+  `Content` varchar(255) DEFAULT NULL COMMENT '回复内容',
+  `UserId` int(10) unsigned DEFAULT NULL COMMENT '回复用户Id',
+  `ModifiedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '最后编辑时间',
+  `CreatedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `Fk_Topic_Reply` (`TopicId`),
+  KEY `Fk_User_Reply_Created` (`UserId`),
+  CONSTRAINT `Fk_Topic_Reply` FOREIGN KEY (`TopicId`) REFERENCES `bbs_topic` (`id`),
+  CONSTRAINT `Fk_User_Reply_Created` FOREIGN KEY (`UserId`) REFERENCES `bbs_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='回帖表';
+
+-- ----------------------------
+-- Records of bbs_reply
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for bbs_topic
+-- ----------------------------
+DROP TABLE IF EXISTS `bbs_topic`;
+CREATE TABLE `bbs_topic` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID标识',
+  `ForumId` int(10) unsigned DEFAULT NULL COMMENT '版块分类Id',
+  `Title` varchar(100) DEFAULT NULL COMMENT '主帖标题',
+  `Content` varchar(255) DEFAULT NULL COMMENT '内容',
+  `UserId` int(10) unsigned DEFAULT NULL COMMENT '发帖用户Id',
+  `Hits` int(11) DEFAULT NULL COMMENT '访问总量,即点击数量',
+  `ReplyCount` int(11) DEFAULT NULL COMMENT '回复总计',
+  `ModifiedBy` int(10) unsigned DEFAULT NULL COMMENT '最后编辑用户Id',
+  `ModifiedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '最后编辑时间',
+  `RepliedBy` int(10) unsigned DEFAULT NULL COMMENT '最后回复用户Id',
+  `RepliedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '最后回复时间',
+  `IsClose` bit(1) DEFAULT NULL COMMENT '是否关闭[关闭贴不给回复]',
+  `ImgUrl` varchar(100) DEFAULT NULL COMMENT '帖子展示图片',
+  `CreatedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `Fk_User_Topic_Created` (`UserId`),
+  KEY `Fk_User_Topic_Modified` (`ModifiedBy`),
+  KEY `Fk_Forum_Topic` (`ForumId`),
+  CONSTRAINT `Fk_Forum_Topic` FOREIGN KEY (`ForumId`) REFERENCES `bbs_forum` (`id`),
+  CONSTRAINT `Fk_User_Topic_Created` FOREIGN KEY (`UserId`) REFERENCES `bbs_user` (`id`),
+  CONSTRAINT `Fk_User_Topic_Modified` FOREIGN KEY (`ModifiedBy`) REFERENCES `bbs_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='主题表';
+
+-- ----------------------------
+-- Records of bbs_topic
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for bbs_user
+-- ----------------------------
+DROP TABLE IF EXISTS `bbs_user`;
+CREATE TABLE `bbs_user` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID标识符',
+  `UserName` varchar(50) DEFAULT NULL COMMENT '唯一值, 用户名',
+  `NickName` varchar(100) DEFAULT NULL COMMENT '用户用于显示的昵称',
+  `Password` varchar(20) DEFAULT NULL COMMENT '密码',
+  `Email` varchar(50) DEFAULT NULL COMMENT 'Email',
+  `HeadUrl` varchar(100) DEFAULT NULL COMMENT '用户头像',
+  `Introduction` varchar(200) DEFAULT NULL COMMENT '自我介绍',
+  `Signature` varchar(200) DEFAULT NULL COMMENT '个人签名',
+  `TopicCount` int(10) unsigned DEFAULT NULL COMMENT '发帖数',
+  `ReplyCount` int(10) unsigned DEFAULT NULL COMMENT '回复帖子数',
+  `LastTopicId` int(10) unsigned DEFAULT NULL COMMENT '最后发帖ID',
+  `LastReplyId` int(10) unsigned DEFAULT NULL COMMENT '最后回复帖子ID',
+  `CreatedOn` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `Idx_UserName` (`UserName`),
+  KEY `Fk_User_Topic` (`LastTopicId`),
+  KEY `Fk_User_Reply` (`LastReplyId`),
+  CONSTRAINT `Fk_User_Reply` FOREIGN KEY (`LastReplyId`) REFERENCES `bbs_reply` (`id`),
+  CONSTRAINT `Fk_User_Topic` FOREIGN KEY (`LastTopicId`) REFERENCES `bbs_topic` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户表';
+
+-- ----------------------------
+-- Records of bbs_user
+-- ----------------------------

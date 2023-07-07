@@ -1,0 +1,12 @@
+1. install python 
+  除了 pip & documents 其他都不选
+2. 设置 PYTHON_HOME%
+  path %PYTHON_HOME%   %PYTHON_HOME%Scripts
+3. pip install virtualenv
+4. new python venv
+   1. d: -> md venvs
+   2. d:-> cd venvs
+   3. d:\venvs -> virtualenv kg01
+5. d:\venvs\kg01\Scripts
+   activate
+   pip install jupyterlab

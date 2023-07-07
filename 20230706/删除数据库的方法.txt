@@ -1,0 +1,36 @@
+Neo4j 清除数据库
+1. 使用neo4j删除数据库的代码：
+
+    MATCH (n)
+    OPTIONAL MATCH (n)-[r]-()
+    DELETE n,r
+
+    或使用：
+
+    match (n) detach delete n
+
+    使用py2neo删除：
+
+    from py2neo import Graph
+    graph = Graph("http://localhost:7474", auth=("neo4j", "test123"))
+    graph.delete_all()  # 删除已有的所有内容
+
+2. 使用文件操作方式清空数据库方法如下
+    进入到neo4j存储数据库的目录。
+
+    1. 关闭neo4j的服务
+        neo4j stop
+
+    2. 进入到data的目录
+        cd data
+
+    3. 删除neo4j的数据库（这是你要清空的数据库）
+        rm -rf databases/neo4j
+        rm -rf transactions/neo4j
+
+    4. 重启neo4j服务
+        neo4j start
+
+说明：
+    如果是企业版，可以新建一个完全清空的数据库
+    如果是社区版，在配置文件中如果默认是neo4j数据库，则会在没有这个数据库的时候自动新建一个这样的数据库。
