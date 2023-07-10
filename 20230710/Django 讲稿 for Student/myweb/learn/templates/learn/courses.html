@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>全部课程</title>
+</head>
+<body>
+    <h1>course List</h1>
+    <table>
+      <tr>
+        <td>书名</td>
+        <td>作者</td>
+        <td>出版时间</td>
+        <td>学生人数</td>
+      </tr>
+{#      {% for course in courses %}#}
+{#        演示注释#}
+        {% for course in courses %}
+            {# 如果 course 的学生数量低于100，则不显示它的信息 #}
+            {% if course.stu_number >= 100 %}
+      <tr>
+        <td>{{ course.name }}</td>
+        <td>{{ course.author.name }}</td>
+        <td>{{ course.pub_date }}</td>
+        <td>{{ course.stu_number }}</td>
+      </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+</body>
+</html>

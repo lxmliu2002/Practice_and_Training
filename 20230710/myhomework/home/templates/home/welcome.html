@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome</title>
+</head>
+<body>
+    <h1>Welcome, {{ user.username }}!</h1>
+    <p>Registration Details:</p>
+    <ul>
+        <li>Gender: {{ user.userdetails.gender }}</li>
+        <li>Birthdate: {{ user.userdetails.birth }}</li>
+        <li>Email: {{ user.userdetails.email }}</li>
+        <li>Registration Time: {{ user.userdetails.registration_time }}</li>
+    </ul>
+    <p>Click <a href="{% url 'logout' %}">here</a> to logout.</p>
+</body>
+</html>

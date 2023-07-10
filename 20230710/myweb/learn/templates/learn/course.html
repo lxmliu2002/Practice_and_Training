@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ course.name }} 详情页</title>
+  </head>
+  <body>
+    <h1>课程信息</h1>
+    <p>课程 ID ：{{ course.id | add:'2' }}</p>
+    <p>课程名称：{{ course.name | cut:'教程' }}</p>
+    <p>发布日期：{{ course.pub_date }}</p>
+    <p>学生人数：{{ course.stu_number }}</p>
+    <!-- 修改下面这一行 -->
+    <p>{{ date | date:'Y年 F d日 H:i' }}</p>
+  </body>
+</html>
