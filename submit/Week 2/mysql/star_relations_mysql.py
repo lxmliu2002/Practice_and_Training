@@ -2,7 +2,7 @@ import pymysql
 import pandas as pd
 import time
 
-db = pymysql.connect(host='localhost',user='root',passwd='')
+db = pymysql.connect(host='localhost',user='root',passwd='root')
 cursor = db.cursor()
 #创建数据库
 cursor.execute("create database if not exists star_relation;")
@@ -28,7 +28,7 @@ sql_create_star = """create table if not exists 明星(
                     );"""
 cursor.execute(sql_create_star)
 # 写入明星数据
-stars = pd.read_csv('./data/data/star_infos.csv')
+stars = pd.read_csv('./data/data/star_infos_new2.csv')
 for _,curr_star in stars.iterrows():
     if is_valid_date(curr_star['birth']):
         sql_insert_star = "insert into 明星(name, image, homeland, weight, birth, baike_url) VALUE ('{}','{}','{}','{}','{}','{}')".format(curr_star['name'],curr_star['image'],curr_star['homeland'],curr_star['weight'],curr_star['birth'],curr_star['baike_url'])
@@ -61,3 +61,4 @@ for relation in relations:
 db.commit()
 db.close()
 print('End================================')
+

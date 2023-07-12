@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECharts 定制线性图</title>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #0b0c47;
+    }
+
+    #box {
+      margin: 80px auto;
+      width: 800px;
+      height: 600px;
+    }
+  </style>
+
+  <body>
+    <div id="box"></div>
+  </body>
+  <script src="./js/echarts.min.js"></script>
+  <script>
+    // 初始化实例对象 echarts.init(dom)容器;
+    var myChart = echarts.init(document.querySelector('#box'));
+    // 指定配置项和数据
+  var option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        label: {
+          backgroundColor: '#6a7985',
+        },
+      },
+    },
+    legend: {
+      top: '0%',
+      textStyle: {
+        color: 'rgba(255,255,255,.5)',
+        fontSize: '12',
+      },
+    },
+    toolbox: {
+      feature: {
+        saveAsImage: {},
+      },
+    },
+    grid: {
+      left: '10',
+      top: '30',
+      right: '10',
+      bottom: '10',
+      containLabel: true,
+    },
+    xAxis: [
+      {
+        type: 'category',
+        boundaryGap: false, // 去除轴内间距
+        axisLabel: {
+          textStyle: {
+            color: 'rgba(255,255,255,.6)', // 文本颜色
+            fontSize: 12,
+          },
+        },
+        axisLine: {
+          lineStyle: {
+            color: 'rgba(255,255,255,.2)', // X 轴线颜色
+          },
+        },
+        data: [
+          '01',
+          '02',
+          '03',
+          '04',
+          '05',
+          '06',
+          '07',
+          '08',
+          '09',
+          '11',
+          '12',
+          '13',
+          '14',
+          '15',
+          '16',
+          '17',
+          '18',
+          '19',
+          '20',
+          '21',
+          '22',
+          '23',
+          '24',
+          '25',
+          '26',
+          '27',
+          '28',
+          '29',
+          '30',
+        ],
+      },
+    ],
+    yAxis: [
+      {
+        type: 'value',
+        axisTick: { show: false }, // 去除刻度
+        axisLine: {
+          lineStyle: {
+            color: 'rgba(255,255,255,.1)', // Y 轴线颜色
+          },
+        },
+        axisLabel: {
+          textStyle: {
+            color: 'rgba(255,255,255,.6)', // 文字颜色
+            fontSize: 12, // 文字大小
+          },
+        },
+
+        splitLine: {
+          lineStyle: {
+            color: 'rgba(255,255,255,.1)', // 分割线颜色
+          },
+        },
+      },
+    ],
+    series: [
+      {
+        name: '播放量',
+        type: 'line',
+        smooth: true, // 线是圆滑
+        symbol: 'circle', // 设置拐点为小圆点
+        symbolSize: 5, // 拐点大小
+        showSymbol: false, // 开始不显示拐点， 鼠标经过显示
+        // 单独修改线的样式
+        lineStyle: {
+          normal: {
+            color: '#0184d5',
+            width: 2,
+          },
+        },
+        // 填充区域
+        areaStyle: {
+          normal: {
+            // 渐变色，只需要复制即可
+            color: new echarts.graphic.LinearGradient(
+              0,
+              0,
+              0,
+              1,
+              [
+                {
+                  offset: 0,
+                  // 渐变色的起始颜色
+                  color: 'rgba(1, 132, 213, 0.4)',
+                },
+                {
+                  offset: 0.8,
+                  // 渐变线的结束颜色
+                  color: 'rgba(1, 132, 213, 0.1)',
+                },
+              ],
+              false
+            ),
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+          },
+        },
+        // 设置拐点颜色以及边框
+        itemStyle: {
+          normal: {
+            color: '#0184d5',
+            borderColor: 'rgba(221, 220, 107, .1)',
+            borderWidth: 12,
+          },
+        },
+          data: [
+            30,
+            40,
+            30,
+            40,
+            30,
+            40,
+            30,
+            60,
+            20,
+            40,
+            20,
+            40,
+            30,
+            40,
+            30,
+            40,
+            30,
+            40,
+            30,
+            60,
+            20,
+            40,
+            20,
+            40,
+            30,
+            60,
+            20,
+            40,
+            20,
+            40
+          ],
+      },
+      {
+        name: '转发量',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 5,
+        showSymbol: false,
+        lineStyle: {
+          normal: {
+            color: '#00d887',
+            width: 2,
+          },
+        },
+        areaStyle: {
+          normal: {
+            color: new echarts.graphic.LinearGradient(
+              0,
+              0,
+              0,
+              1,
+              [
+                {
+                  offset: 0,
+                  color: 'rgba(0, 216, 135, 0.4)',
+                },
+                {
+                  offset: 0.8,
+                  color: 'rgba(0, 216, 135, 0.1)',
+                },
+              ],
+              false
+            ),
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+          },
+        },
+        itemStyle: {
+          normal: {
+            color: '#00d887',
+            borderColor: 'rgba(221, 220, 107, .1)',
+            borderWidth: 12,
+          },
+        },
+          data: [
+            50,
+            30,
+            50,
+            60,
+            10,
+            50,
+            30,
+            50,
+            60,
+            40,
+            60,
+            40,
+            80,
+            30,
+            50,
+            60,
+            10,
+            50,
+            30,
+            70,
+            20,
+            50,
+            10,
+            40,
+            50,
+            30,
+            70,
+            20,
+            50,
+            10,
+            40
+          ],
+      },
+    ],
+  };
+
+    myChart.setOption(option);
+  </script>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECharts 定制柱状图 2</title>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    /* 设置背景色 */
+    body {
+      background-color: #0b0c47;
+    }
+    #box {
+      /* 设置上下外边距 80px 左右居中 */
+      margin: 80px auto;
+      width: 800px;
+      height: 600px;
+    }
+  </style>
+
+  <body>
+    <div id="box"></div>
+  </body>
+  <script src="./js/echarts.js"></script>
+  <script>
+    var myChart = echarts.init(document.querySelector('#box'));
+    var option = {
+      title: {
+        text: '世界人口总量',
+        subtext: '数据来自网络',
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+        },
+      },
+      legend: {
+        data: ['2011年', '2012年'],
+      },
+      grid: {
+      top: '10%',
+      bottom: '10%',
+      },
+
+      xAxis: {
+      show: false,
+      },
+
+      yAxis: [
+    {
+      axisLine: {
+        show: false,
+      },
+      // 反向坐标轴
+      inverse: true,
+      // 不显示刻度
+      axisTick: {
+        show: false,
+      },
+      axisLabel: {
+        color: '#fff',
+      },
+      type: 'category',
+      data: ['HTML5', 'CSS3', 'javascript', 'VUE', 'NODE'],
+    },
+    ],
+
+
+    series: [
+      // 第一组柱子
+      {
+        name: '条',
+        // 柱子之间的距离
+        barCategoryGap: 50,
+        //柱子的宽度
+        barWidth: 10,
+        type: 'bar',
+        // 柱子设为圆角
+        itemStyle: {
+          normal: {
+            barBorderRadius: 20,
+            // 给 itemStyle 里面的 color 属性设置一个返回值函数
+            color: function (params) {
+              return myColor[params.dataIndex];
+            },
+          },
+        },
+        label: {
+          normal: {
+            show: true,
+            // 图形内显示
+            position: 'inside',
+            // 文字的显示格式
+            // {c} 会自动的解析为数据，也就是 data 里面的数据
+            formatter: '{c}%',
+          },
+        },
+
+        data: [70, 34, 60, 78, 69],
+      },
+      // 第二组柱子
+      {
+        name: '2012年',
+        type: 'bar',
+        data: [19325, 23438, 31000, 121594, 134141, 681807],
+      },
+    ],
+
+    };
+
+    myChart.setOption(option);
+  </script>
+</html>

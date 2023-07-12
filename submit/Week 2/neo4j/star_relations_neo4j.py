@@ -4,7 +4,7 @@ import pandas as pd
 
 graph = Graph('bolt://localhost:7687',auth=('neo4j','12345678'))
 graph.delete_all()
-node_stars = pd.read_csv('./data/data/star_infos_new2.csv')
+node_stars = pd.read_csv('./data/star_infos_new2.csv')
 # print(len(node_stars))
 nodes = {}
 for i in range(len(node_stars)):
@@ -13,7 +13,7 @@ for i in range(len(node_stars)):
     graph.create(node)
     nodes[node_stars.loc[i,'name']] = node
 # print(nodes)
-path_stars = pd.read_csv('./data/data/all_star_relations.csv')
+path_stars = pd.read_csv('./data/all_star_relations.csv')
 for i in range(len(path_stars)):
     relation = Relationship(nodes[path_stars.loc[i,'subject']],path_stars.loc[i,'relation'],nodes[path_stars.loc[i,'object']])
     graph.create(relation)

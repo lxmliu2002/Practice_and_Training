@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ECharts 定制柱状图 2</title>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    /* 设置背景色 */
+    body {
+      background-color: #0b0c47;
+    }
+    #box {
+      /* 设置上下外边距 80px 左右居中 */
+      margin: 80px auto;
+      width: 800px;
+      height: 600px;
+    }
+  </style>
+
+  <body>
+    <div id="box"></div>
+  </body>
+  <script src="./js/echarts.js"></script>
+  <script>
+    var myChart = echarts.init(document.querySelector('#box'));
+  // 声明颜色数组
+  var myColor = ['#1089E7', '#F57474', '#56D0E3', '#F8B448', '#8B78F6'];
+    var option = {
+title: {
+        text: '就业行业',
+        textStyle:{
+            color:"#fff"
+        }
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+        },
+      },
+      legend: {
+        data: ['2011年', '2012年'],
+      },
+    grid: {
+      top: '10%',
+      bottom: '10%',
+    },
+    xAxis: {
+      show: false,
+    },
+    yAxis: [
+    {
+      axisLine: {
+        show: false,
+      },
+      // 反向坐标轴
+      inverse: true,
+      // 不显示刻度
+      axisTick: {
+        show: false,
+      },
+      axisLabel: {
+        color: '#fff',
+      },
+      type: 'category',
+      data: ['HTML5', 'CSS3', 'javascript', 'VUE', 'NODE'],
+    },
+      {
+        show: true,
+        inverse: true,
+        // 设置第二个 y 轴的数据
+        data: [702, 350, 610, 793, 664],
+        // 不显示y轴的线
+        axisLine: {
+          show: false,
+        },
+        // 不显示刻度
+        axisTick: {
+          show: false,
+        },
+        axisLabel: {
+          textStyle: {
+            fontSize: 12,
+            color: '#fff',
+          },
+        },
+      },
+    ],
+    series: [
+      // 第一组柱子
+      {
+        name: '条',
+        // 柱子之间的距离
+        barCategoryGap: 50,
+        //柱子的宽度
+        barWidth: 10,
+        type: 'bar',
+        // 柱子设为圆角
+        itemStyle: {
+          normal: {
+            barBorderRadius: 20,
+            // 给 itemStyle 里面的 color 属性设置一个返回值函数
+            color: function (params) {
+            // 在控制台中打印 params 的值
+                //console.log(params);
+              return myColor[params.dataIndex];
+            },
+          },
+        },
+        label: {
+          normal: {
+            show: true,
+            // 图形内显示
+            position: 'inside',
+            // 文字的显示格式
+            // {c} 会自动的解析为数据，也就是 data 里面的数据
+            formatter: '{c}%',
+          },
+        },
+        // 给 series 第一个对象里面添加
+        yAxisIndex: 0,
+        data: [70, 34, 60, 78, 69],
+      },
+      // 第二组柱子
+      {
+        name: '框',
+        type: 'bar',
+        barCategoryGap: 50,
+        barWidth: 15,
+        itemStyle: {
+          // 柱条的颜色
+          color: 'none',
+          // 柱条的描边颜色
+          borderColor: '#00c1de',
+          // 柱条的描边宽度
+          borderWidth: 3,
+          // 圆角半径，单位 px
+          barBorderRadius: 15,
+        },
+        // 给 series 第二个对象里面添加
+        yAxisIndex: 1,
+        data: [100, 100, 100, 100, 100],
+      },
+    ],
+    };
+
+    myChart.setOption(option);
+  </script>
+</html>

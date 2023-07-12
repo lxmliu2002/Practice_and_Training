@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <title>MYSQL数据库操作</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!-- <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" media="all"> -->
+    <style>
+        html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,dl,dt,dd,ol,nav ul,nav li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}
+        article, aside, details, figcaption, figure,footer, header, hgroup, menu, nav, section {display: block;}
+        ol,ul{list-style:none;margin:0px;padding:0px;}
+        blockquote,q{quotes:none;}
+        blockquote:before,blockquote:after,q:before,q:after{content:'';content:none;}
+        table{border-collapse:collapse;border-spacing:0;}
+        /* start editing from here */
+        a{text-decoration:none;}
+        .txt-rt{text-align:right;}/* text align right */
+        .txt-lt{text-align:left;}/* text align left */
+        .txt-center{text-align:center;}/* text align center */
+        .float-rt{float:right;}/* float right */
+        .float-lt{float:left;}/* float left */
+        .clear{clear:both;}/* clear float */
+        .pos-relative{position:relative;}/* Position Relative */
+        .pos-absolute{position:absolute;}/* Position Absolute */
+        .vertical-base{	vertical-align:baseline;}/* vertical align baseline */
+        .vertical-top{	vertical-align:top;}/* vertical align top */
+        nav.vertical ul li{	display:block;}/* vertical menu */
+        nav.horizontal ul li{	display: inline-block;}/* horizontal menu */
+        img{max-width:100%;}
+        /*end reset*/
+        /*----importing-fonts---*/
+        /*-----light-font----*/
+        /*----//importing-fonts---*/
+        body{
+            font-family:trebuchet ms, arial, sans-serif;
+            background: #fff;
+            background: linear-gradient(#141e30,#243b55);
+            height: 100vh;
+        }
+        /*---start-wrap-----*/
+        .wrap{
+            width:60%;
+            margin:0 auto;
+        }
+        .content
+        {
+            background: #252A2F;
+        }
+        #page{
+            display:none;
+        }
+        .header-left{
+            float:left;
+            margin-top: 1em;
+        }
+        .header-right{
+            float:right;
+            width: 50%;
+        }
+        .top-nav ul li{
+            display:inline-block;
+        }
+        .top-nav ul li a{
+            color: #ffffff;
+            padding: 1.6em 1.2em 1.6em 1.2em;
+            display: block;
+            font-size: 0.95em;
+            transition:0.5s all;
+            -webkit-transition:0.5s all;
+            -moz-transition:0.5s all;
+            -o-transition:0.5s all;
+            text-transform: uppercase;
+            font-family: 'Open Sans', sans-serif;
+        }
+        .top-nav ul li a:hover{
+            color:#FFF;
+            background: #03e9f4;
+        }
+        .top-nav ul li.active>a{
+            color:#FFF;
+            background: #03e9f4;
+        }
+        .top-nav{
+            float:left;
+        }
+        .new {
+            margin-top: 20%;
+        }
+        .new a{
+            /*overflow: hidden;*/
+            position: relative;
+            padding: 20px 40px;
+            color: #03e9f4;
+            border-radius: 5px;
+            background-color: #141e30;
+            outline: none;
+            cursor: pointer;
+            /*同样加个过渡*/
+            transition: all 0.5s;
+            font-size: 30px;
+        }
+        .new a:hover {
+            color: #fff;
+            border-radius: 5px;
+            background-color: #03e9f4;
+            box-shadow: 0 0 5px #03e9f4,0 0 25px #03e9f4,0 0 50px #03e9f4,0 0 100px #03e9f4;
+        }
+    </style>
+</head>
+<body>
+    {% if messages %}
+    <script>
+        {% for msg in messages %}
+        alert('{{ msg.message }}');
+        {% endfor %}
+    </script>
+    {% endif %}
+    <div class="mm-page">
+        <div class="content">
+            <!------start-768px-menu---->
+            <div id="page">
+                <div id="header">
+                    <a class="navicon" href="#menu-left"> </a>
+                </div>
+            </div>
+            <div class="header">
+                <!---start-wrap---->
+                <div class="wrap">
+                    <div class="header-left" style="width: 10%;">
+                        <div class="logo">
+                            <a href="/"><img src="{% static 'img/home.png' %}" style="width: 40%;"></a>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div class="top-nav">
+                            <ul>
+                                <li class="active"><a href="new">新建数据库</a></li>
+                                <li><a href="modify">数据库修改</a></li>
+                                <li><a href="query">数据库查询</a></li>
+                            </ul>
+                        </div>
+                        <div class="clear"> </div>
+                    </div>
+                    <div class="clear"> </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="new">
+            <center>
+                <a href="new?newdb=true"
+                    onclick="return confirm('点击该按钮会删除重建star_relation数据库，包括数据库中的所有表，确认新建数据库吗？')">新建数据库</a>
+            </center>
+        </div>
+        <div style="display:none"></div>
+    </div>
+</body>
+</html>

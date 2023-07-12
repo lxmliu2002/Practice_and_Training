@@ -1,0 +1,568 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-ch">
+
+<head>
+    <title>MYSQL数据库操作</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!-- <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" media="all"> -->
+    <script src="{% static 'js/vue.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/jquery-3.7.0.min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <style>
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        dl,
+        dt,
+        dd,
+        ol,
+        nav ul,
+        nav li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        article,
+        aside,
+        details,
+        figcaption,
+        figure,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        section {
+            display: block;
+        }
+
+        ol,
+        ul {
+            list-style: none;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        blockquote,
+        q {
+            quotes: none;
+        }
+
+        blockquote:before,
+        blockquote:after,
+        q:before,
+        q:after {
+            content: '';
+            content: none;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        /* start editing from here */
+        a {
+            text-decoration: none;
+        }
+
+        .txt-rt {
+            text-align: right;
+        }
+
+        /* text align right */
+        .txt-lt {
+            text-align: left;
+        }
+
+        /* text align left */
+        .txt-center {
+            text-align: center;
+        }
+
+        /* text align center */
+        .float-rt {
+            float: right;
+        }
+
+        /* float right */
+        .float-lt {
+            float: left;
+        }
+
+        /* float left */
+        .clear {
+            clear: both;
+        }
+
+        /* clear float */
+        .pos-relative {
+            position: relative;
+        }
+
+        /* Position Relative */
+        .pos-absolute {
+            position: absolute;
+        }
+
+        /* Position Absolute */
+        .vertical-base {
+            vertical-align: baseline;
+        }
+
+        /* vertical align baseline */
+        .vertical-top {
+            vertical-align: top;
+        }
+
+        /* vertical align top */
+        nav.vertical ul li {
+            display: block;
+        }
+
+        /* vertical menu */
+        nav.horizontal ul li {
+            display: inline-block;
+        }
+
+        /* horizontal menu */
+        img {
+            max-width: 100%;
+        }
+
+        /*end reset*/
+        /*----importing-fonts---*/
+        /*-----light-font----*/
+        /*----//importing-fonts---*/
+        body {
+            font-family: trebuchet ms, arial, sans-serif;
+            background: #fff;
+            background: linear-gradient(#141e30, #243b55);
+            height: 100vh;
+        }
+
+        /*---start-wrap-----*/
+        .wrap {
+            width: 60%;
+            margin: 0 auto;
+        }
+
+        .content {
+            background: #252A2F;
+        }
+
+        #page {
+            display: none;
+        }
+
+        .header-left {
+            float: left;
+            margin-top: 1em;
+        }
+
+        .header-right {
+            float: right;
+            width: 50%;
+        }
+
+        .top-nav ul li {
+            display: inline-block;
+        }
+
+        .top-nav ul li a {
+            color: #ffffff;
+            padding: 1.6em 1.2em 1.6em 1.2em;
+            display: block;
+            font-size: 0.95em;
+            transition: 0.5s all;
+            -webkit-transition: 0.5s all;
+            -moz-transition: 0.5s all;
+            -o-transition: 0.5s all;
+            text-transform: uppercase;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .top-nav ul li a:hover {
+            color: #FFF;
+            background: #03e9f4;
+        }
+
+        .top-nav ul li.active>a {
+            color: #FFF;
+            background: #03e9f4;
+        }
+
+        .top-nav {
+            float: left;
+        }
+
+        .modify {
+            margin-top: 50px;
+            color: #03e9f4;
+        }
+
+        .modify a {
+            /*overflow: hidden;*/
+            position: relative;
+            padding: 20px 40px;
+            color: #03e9f4;
+            border-radius: 5px;
+            background-color: #141e30;
+            outline: none;
+            cursor: pointer;
+            /*同样加个过渡*/
+            transition: all 0.5s;
+            font-size: 30px;
+        }
+
+        .modify a:hover {
+            color: #fff;
+            border-radius: 5px;
+            background-color: #03e9f4;
+            box-shadow: 0 0 5px #03e9f4, 0 0 25px #03e9f4, 0 0 50px #03e9f4, 0 0 100px #03e9f4;
+        }
+        .select-relation {
+            background-color: #141e30;
+            padding: 5px;
+            color: #03e9f4;
+        }
+        .select-relation::-webkit-scrollbar{
+            background-color: #141e30;
+        }
+        .select-relation::-webkit-scrollbar-thumb {
+            background-color: #03e9f4;
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+            border-radius: 10px;
+        }
+        input,textarea {
+            background-color: #141e30;
+            color: #03e9f4;
+            padding: 10px;
+            outline: none;
+            border-color: #000;
+            border: none;
+            border-radius: 5px;
+        }
+        #review{
+            /*overflow: hidden;*/
+            position: relative;
+            padding: 10px 20px;
+            color: #03e9f4;
+            border-radius: 5px;
+            outline: none;
+            border: none;
+            cursor: pointer;
+            /*同样加个过渡*/
+            transition: all 0.5s;
+        }
+        #review:hover {
+            color: #fff;
+            border-radius: 5px;
+            background-color: #03e9f4;
+            box-shadow: 0 0 5px #03e9f4,0 0 25px #03e9f4,0 0 50px #03e9f4,0 0 100px #03e9f4;
+        }
+        #submit{
+            /*overflow: hidden;*/
+            position: relative;
+            padding: 10px 20px;
+            color: #03e9f4;
+            border-radius: 5px;
+            outline: none;
+            border: none;
+            cursor: pointer;
+            /*同样加个过渡*/
+            transition: all 0.5s;
+        }
+        #submit:hover {
+            color: #fff;
+            border-radius: 5px;
+            background-color: #03e9f4;
+            box-shadow: 0 0 5px #03e9f4,0 0 25px #03e9f4,0 0 50px #03e9f4,0 0 100px #03e9f4;
+        }
+        textarea {
+            width: 60%;
+        }
+    </style>
+</head>
+
+<body>
+    {% if messages %}
+    <script>
+        {% for msg in messages %}
+        alert('{{ msg.message }}');
+        {% endfor %}
+    </script>
+    {% endif %}
+    <div class="mm-page">
+        <div class="content">
+            <!------start-768px-menu---->
+            <div id="page">
+                <div id="header">
+                    <a class="navicon" href="#menu-left"> </a>
+                </div>
+            </div>
+            <div class="header">
+                <!---start-wrap---->
+                <div class="wrap">
+                    <div class="header-left" style="width: 10%;">
+                        <div class="logo">
+                            <a href="/"><img src="{% static 'img/home.png' %}" style="width: 40%;"></a>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div class="top-nav">
+                            <ul>
+                                <li><a href="new">新建数据库</a></li>
+                                <li class="active"><a href="modify">数据库修改</a></li>
+                                <li><a href="query">数据库查询</a></li>
+                            </ul>
+                        </div>
+                        <div class="clear"> </div>
+                    </div>
+                    <div class="clear"> </div>
+                </div>
+            </div>
+        </div>
+        <div class="modify">
+            <form action="/mysql/modify" method="POST" id="form-modify">
+                <center>
+                    <p>操作：
+                        <label><input type="radio" name="act" value="add" checked onclick="change()">添加</label>
+                        <label><input type="radio" name="act" value="delete"onclick="change()">删除</label>
+                    </p>
+                    <br>
+                    <p>表：
+                        <label><input type="radio" name="table" value="star" onclick="change()" checked>明星</label>
+                        <label><input type="radio" name="table" value="relation" onclick="change()">关系</label>
+                    </p> 
+                    <br>
+                    <!-- 删除关系 -->
+                    <div id="delete-relation" v-show="dr">
+                        <p>关系：
+                            <select class="select-relation" name="del-relation" onblur="updateReview()">
+                                {% for relation in relations %}
+                                {% if relation == del_relation %}
+                                <option value="{{relation}}" selected>{{relation}}</option>
+                                {% else %}
+                                <option value="{{relation}}">{{relation}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <br>
+                        <p>明星1：
+                            <input type="text" name="del-subject" value="{{del_subject}}" onblur="updateReview()">
+                        </p>
+                        <br>
+                        <p>明星2：
+                            <input type="text" name="del-object" value="{{del_object}}" onblur="updateReview()">
+                        </p>
+                    </div>
+                    <!-- 添加关系 -->
+                    <div id="add-relation" v-show="ar">
+                        <p>关系：
+                            <select class="select-relation" name="add-relation" onblur="updateReview()" >
+                                {% for relation in relations %}
+                                {% if relation == add_relation %}
+                                <option value="{{relation}}" selected>{{relation}}</option>
+                                {% else %}
+                                <option value="{{relation}}">{{relation}}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <br>
+                        <p>明星1：
+                            <input type="text" name="subject" value="{{subject}}" onblur="updateReview()">
+                        </p>
+                        <br>
+                        <p>明星2：
+                            <input type="text" name="object" value="{{object}}" onblur="updateReview()">
+                        </p>
+                    </div>
+                    <!-- 添加明星 -->
+                    <div id="add-star" v-show="as">
+                        <p>姓名：
+                            <input type="text" name="star-name" value="{{star_name}}" onblur="updateReview()">
+                        </p>
+                        <br>
+                        <p>籍贯：
+                            <input type="text" name="star-homeland" value="{{star_homeland}}" onblur="updateReview()">
+                        </p>
+                        <br>
+                        <p>出生日期：
+                            <input type="date" name="star-birth" value="{{star_birth}}" onblur="updateReview()">
+                        </p>
+                        <br>
+                        <p>体重：
+                            <input type="text" name="star-weight" value="{{star_weight}}" onblur="updateReview()">
+                        </p>
+                    </div>
+                    <!-- 删除明星 -->
+                    <div id="delete-star" v-show="ds">
+                        <p>姓名：
+                            <input type="text" name="del-star-name" value="{{del_star_name}}" onblur="updateReview()">
+                        </p>
+                    </div>
+                    <script>
+                        // 使用vue控制四种不同的选择分别渲染
+                        var acts = document.getElementsByName('act');
+                        var tables = document.getElementsByName('table');
+                        var d_relation = new Vue({
+                                el: "#delete-relation",
+                                data: {
+                                    dr: acts[1].checked && tables[1].checked
+                                }
+                            })
+                        var a_relation = new Vue({
+                            el: "#add-relation",
+                            data: {
+                                ar: acts[0].checked && tables[1].checked
+                            }
+                        })
+                        var a_star = new Vue({
+                            el:"#add-star",
+                            data:{
+                                as: acts[0].checked && tables[0].checked
+                            }
+                        })
+                        var d_star = new Vue({
+                            el: "#delete-star",
+                            data: {
+                                ds: acts[1].checked && tables[0].checked
+                            }
+                        })
+                        function change() {
+                            var acts = document.getElementsByName('act');
+                            var tables = document.getElementsByName('table');
+                            a_star.as = acts[0].checked && tables[0].checked;
+                            d_star.ds = acts[1].checked && tables[0].checked;
+                            a_relation.ar = acts[0].checked && tables[1].checked;
+                            d_relation.dr = acts[1].checked && tables[1].checked;
+                            updateReview();
+                        }
+                        // 失去焦点时发送ajax请求，控制预览和提交的展示
+                        function updateReview() {
+                            // console.log('发送ajax请求')
+                            var data = $('#form-modify').serialize();
+                            var csrf = $('input[name="csrfmiddlewaretoken"]').val();  //增加csrf变量将在data中传参以避免403错误
+                            data['csrfmiddlewaretoken'] = csrf;
+                            // 朝后端发送ajax请求
+                            $.ajax({
+                                // 1.指定朝哪个后端发送ajax请求
+                                url:'', //不写就是朝当前地址提交【与form表单的action参数相同】
+                                // 2.请求方式
+                                type:'post',  // 不指定默认就是get，都是小写
+                                // 3.数据
+                                data:data,
+                                // 4.回调函数:当后端给你返回结果的时候会自动触发，args接受后端的返回结果
+                                success:function (res) {
+                                    // console.log('成功');
+                                    var res_str = JSON.parse(res);
+                                    if($("#review-textarea").length == 0){
+                                        $('#review-div').append('<p><textarea id="review-textarea" type="text" readonly></textarea></p>');
+                                    }
+                                    $('#review-textarea').val(res_str['review_text']);
+                                    if(res_str['can_submit'] && $("#submit").length == 0){
+                                        $('#submit-modify').append('<input type="submit" name="commit" value="提交" id="submit">');
+                                    }
+                                    else {
+                                        if(!res_str['can_submit'] && $("#submit").length > 0) {
+                                            $('#submit').remove();
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    </script>
+                    <br>
+                    <p><input type="button" name="push" value="预览" id="review" onclick="updateReview()"></p>
+                    <br>
+                    <div id="review-div"></div>
+                    <br>
+                    <p id="submit-modify"></p>
+                </center>
+            </form>
+            
+        </div>
+        <div style="display:none"></div>
+    </div>
+</body>
+
+</html>

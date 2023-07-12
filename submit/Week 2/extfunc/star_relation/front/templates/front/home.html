@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+        <meta charset="utf-8">
+        <title>明星关系数据库</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- CSS -->
+        
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+        <style>
+            body {
+                background: linear-gradient(#141e30,#243b55);
+                height: 100vh;
+                display: flex;
+                align-items: center;
+            }
+            {% comment %} body {
+                /*弹性布局 让页面元素垂直+水平居中*/
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                /*让页面始终占浏览器可视区域总高度*/
+                height: 100vh;
+                /*背景渐变色*/
+                background: linear-gradient(#141e30,#243b55);
+            
+            } {% endcomment %}
+
+            h1 {
+                display: inline-block;
+                margin-top: 60px;
+                padding-bottom: 10px;
+                font-size: 36px;
+                font-weight: 400;
+                color: #FFFFFF;
+                border-bottom: 1px dotted #aaa;
+            }
+            h2 {
+                color: #FFFFFF;
+            }
+            a {
+                display: inline-block;
+                margin-top: 30px;
+                -o-transition: all .2s;
+                -moz-transition: all .2s;
+                -webkit-transition: all .2s;
+                -ms-transition: all .2s;
+            }
+            a:hover { opacity: 0.7; }
+            img {
+                padding: 7px;
+                -moz-border-radius: 5px;
+                -webkit-border-radius: 5px;
+                border-radius: 5px;
+                -moz-box-shadow: 0 1px 3px 0 rgba(0,0,0,.15);
+                -webkit-box-shadow: 0 1px 3px 0 rgba(0,0,0,.15);
+                box-shadow: 0 1px 3px 0 rgba(0,0,0,.15);
+            }
+            p {
+                margin-top: 15px;
+                color: #FFFFFF;
+            }
+            .bottom {
+                height: 60px;
+            }
+        </style>
+
+    </head>
+<body>
+
+        <div class="container">
+            <div class="row">
+                <div class="span10 offset1" >
+                    <center>
+                        <h1>明星关系数据库</h1> 
+                    </center>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span10 offset1">
+                    <center>
+                        <h2>选择您需要查看的数据库</h2>
+                    </center>
+                </div>
+            </div>
+
+            <div class="row">
+                    <div class="span10 offset1">
+                        <center>
+                            <a class="mysql" href="mysql"><img src="{% static 'img/mysql.jpeg' %}" alt="" style="max-height:300px"></a>
+                            <p>mysql数据库</p>
+                        </center>
+                    </div>
+            </div>
+
+        <div class="bottom"></div>
+</body>
+</html>
